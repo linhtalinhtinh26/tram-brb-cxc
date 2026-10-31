@@ -5,7 +5,7 @@ const hashtagsData = {
 
 // ===== ÂM THANH KHI BẤM NÚT COPY =====
 // Đổi tên file ở đây cho đúng với file audio của bạn (để trong thư mục assets/audio/)
-const COPY_SOUND_URL = "assets/audio/wink.mp4";
+const COPY_SOUND_URL = "assets/audio/wink.mp3";
 const copySoundEl = new Audio(COPY_SOUND_URL);
 copySoundEl.preload = 'auto'; // tải sẵn, bấm là kêu ngay
 
