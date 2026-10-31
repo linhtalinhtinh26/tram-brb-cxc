@@ -245,7 +245,7 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
             if (otherStillHasStock) {
                 captionTextEl.innerText = `⚠️ Kho ${currentLangName} đã hết!\n👉 Bạn hãy chuyển qua lấy ${otherLangName} nhé!`;
             } else {
-                captionTextEl.innerHTML = '🚨 Kho caption đã cạn kiệt!<br>📩 Vui lòng liên hệ <a href="https://www.facebook.com/pthh.uaoong.26" class="contact-link">Nguyễn Phương Thảo</a> để cập nhật thêm.';
+                captionTextEl.innerHTML = '🚨 Kho caption đã cạn kiệt!<br>📩 Vui lòng liên hệ <a href="https://www.facebook.com/pthh.uaoong.26" class="contact-link">Taho</a> để cập nhật thêm.';
             }
 
             currentCaptionText = "";
