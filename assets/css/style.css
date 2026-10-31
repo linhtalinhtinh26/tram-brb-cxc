@@ -165,50 +165,121 @@ body {
 }
 
 /* ========================================================
-🍀 1. TITLE: "BrB w Cloveris"
+🍀 1. TITLE: dòng nhỏ "Brand Reputation Boots" + dòng to "CORTIShield x CLOVERIS" uốn cong như cây cầu
 ======================================================== */
 .title-banner {
-    margin-top: 6px;
-    margin-bottom: 12px;
+    /* ĐỔI FONT TIÊU ĐỀ Ở ĐÂY (cả 2 dòng dùng chung). Ví dụ font có sẵn trong web: 'Nunito' (đặt weight 900) */
+    --title-font: 'Fredoka', 'Baloo 2', sans-serif;
+    margin-top: 8px;
+    margin-bottom: 14px;
     text-align: center;
     position: relative;
+    isolation: isolate;
     cursor: default;
 }
 
+/* Vệt trắng mờ phía sau chữ cho dễ đọc trên nền chấm bi */
+.title-banner::before {
+    content: "";
+    position: absolute;
+    inset: 6px -4px 14px;
+    background: radial-gradient(ellipse at center,
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(255, 255, 255, 0.6) 55%,
+            rgba(255, 255, 255, 0) 100%);
+    filter: blur(6px);
+    z-index: -1;
+    pointer-events: none;
+}
+
 .title-text {
-    font-family: 'Baloo 2', sans-serif;
-    font-size: 46px;
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: 0.5px;
-    color: #55b773;
-    -webkit-text-stroke: 4px #236533;
-    paint-order: stroke fill;
-    text-shadow:
-        0 4px 0 #184724,
-        0 6px 14px rgba(24, 71, 36, 0.25);
-    display: inline-flex;
-    align-items: baseline;
-    transform: rotate(-1.5deg);
+    font-family: var(--title-font);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1;
+    max-width: 100%;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Dòng nhỏ phía trên + nét gạch chân */
+.title-small {
+    position: relative;
+    display: inline-block;
+    font-family: var(--title-font);
+    font-weight: 600;
+    font-size: clamp(16px, 5.2vw, 19px);   /* cỡ chữ dòng "Brand Reputation Boots" */
+    letter-spacing: -0.02em;   /* chữ sát nhau hơn */
+    word-spacing: -0.1em;      /* khoảng cách giữa các từ gọn lại */
+    color: var(--clover-dark, #236533);
+    white-space: nowrap;
+    padding-bottom: 6px;
+}
+
+.title-small::after {
+    content: "";
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 0;
+    height: 7px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M3 6 C40 2 80 8 120 4 S180 3 197 5' fill='none' stroke='%232d7a4a' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+/* Dòng to: SVG tự co theo bề rộng nên không bao giờ bị tràn */
+.title-arc {
+    display: block;
+    width: calc(100% + 36px);   /* tràn ra lề trong để chữ to hơn (lề card là 20px nên vẫn còn chừa 6px) */
+    margin: 0 -18px;
+    max-width: 540px;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 3px 5px rgba(120, 150, 80, 0.25));
+}
+
+.title-arc-text {
+    font-family: var(--title-font);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-stretch: 75%;                    /* nén ngang chữ: cùng độ rộng thì chữ cao và to hơn */
+    font-variation-settings: "wdth" 75;
+    font-size: 32px;            /* giá trị dự phòng, app.js sẽ tính lại cho lấp đầy chiều ngang */
+    text-anchor: middle;
+}
+
+/* Lớp chữ xanh (nằm trên) */
+.title-arc-fill {
+    fill: #2f7d4f;
+    stroke: none;
+}
+
+/* Lớp viền vàng kem (nằm dưới), viền bo tròn bao cả cụm chữ như nhãn dán */
+.title-arc-halo {
+    fill: #fdeaa6;
+    stroke: #fdeaa6;
+    stroke-width: 8px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
 .title-banner:hover .title-text {
-    transform: rotate(0deg) scale(1.03);
+    transform: scale(1.03);
 }
 
 .title-sub {
     font-family: 'Baloo 2', sans-serif;
-    font-size: 13.5px;
+    font-size: clamp(11px, 3.2vw, 13.5px);
     font-weight: 700;
     color: var(--clover-dark);
-    background: rgba(226, 244, 229, 0.9);
+    background: rgba(226, 244, 229, 0.95);
     border: 1.5px dashed var(--clover-mid);
-    padding: 3px 14px;
+    padding: 4px 14px;
     border-radius: 20px;
     display: inline-block;
-    margin-top: 4px;
     letter-spacing: 0.6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 /* ========================================================
@@ -413,12 +484,10 @@ body {
     0%,
     100% {
         transform: scale(1);
-        border-color: #b5dac0;
     }
 
     50% {
         transform: scale(1.01);
-        border-color: #72c786;
     }
 }
 
@@ -720,6 +789,7 @@ body {
     font-size: 30px;
     transform: translate(-50%, -50%);
     animation: flyOutParticle 1.25s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+    will-change: transform, opacity;
 }
 
 @keyframes flyOutParticle {
@@ -1321,4 +1391,16 @@ body {
 /* Kéo mascot sát lên một chút để web đỡ dài */
 .x-link-wrap + .poyoiyoi-container {
     margin-top: 16px;
+}
+
+/* Người dùng bật "giảm chuyển động" (hoặc máy yếu) -> tắt animation lặp vô hạn cho đỡ lag */
+@media (prefers-reduced-motion: reduce) {
+
+    .doodle-sparkle,
+    .welcome-placeholder,
+    .milestone-mascot,
+    .confetti-sparkles,
+    .milestone-num {
+        animation: none !important;
+    }
 }

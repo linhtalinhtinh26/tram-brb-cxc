@@ -3,6 +3,20 @@ const hashtagsData = {
     kr: "#CORTIS #코르티스"
 };
 
+// ===== ÂM THANH KHI BẤM NÚT COPY =====
+// Đổi tên file ở đây cho đúng với file audio của bạn (để trong thư mục assets/audio/)
+const COPY_SOUND_URL = "assets/audio/wink.mp4";
+const copySoundEl = new Audio(COPY_SOUND_URL);
+copySoundEl.preload = 'auto'; // tải sẵn, bấm là kêu ngay
+
+function playCopySound() {
+    try {
+        copySoundEl.currentTime = 0;
+        const p = copySoundEl.play();
+        if (p !== undefined) p.catch(() => { }); // trình duyệt chặn hoặc thiếu file thì bỏ qua, không ảnh hưởng chức năng copy
+    } catch (e) { }
+}
+
 const poyoiyoiAudios = [
     "assets/audio/2.mp3",
     "assets/audio/3.mp3",
@@ -89,33 +103,36 @@ const speechTextEl = document.getElementById('speechText');
 let stockEN = 0;
 let stockKR = 0;
 
-// Hàm đếm số lượng caption còn lại (Chạy ngầm sau 2.5 giây để tránh đơ web)
+// Đếm số caption chưa dùng. Ưu tiên count() (chỉ tính 1 lượt đọc), nếu SDK không hỗ trợ thì đọc cách cũ.
+async function countUnused(lang) {
+    const q = db.collection('captions').where('lang', '==', lang).where('isUsed', '==', false);
+    if (typeof q.count === 'function') {
+        try {
+            const agg = await q.count().get();
+            return agg.data().count;
+        } catch (err) {
+            console.warn('count() không dùng được, đọc cách cũ:', err);
+        }
+    }
+    const snap = await q.get();
+    return snap.size;
+}
+
+// Chạy ngầm, 2 ngôn ngữ đếm song song
 function initStockCounters() {
     setTimeout(async () => {
         try {
-            // Đếm Tiếng Anh
-            const enSnap = await db.collection('captions')
-                .where('lang', '==', 'en')
-                .where('isUsed', '==', false)
-                .get();
-            stockEN = enSnap.size;
-            if (document.getElementById('stock-en')) {
-                document.getElementById('stock-en').innerText = stockEN;
-            }
-
-            // Đếm Tiếng Hàn
-            const krSnap = await db.collection('captions')
-                .where('lang', '==', 'kr')
-                .where('isUsed', '==', false)
-                .get();
-            stockKR = krSnap.size;
-            if (document.getElementById('stock-kr')) {
-                document.getElementById('stock-kr').innerText = stockKR;
-            }
+            const [en, kr] = await Promise.all([countUnused('en'), countUnused('kr')]);
+            stockEN = en;
+            stockKR = kr;
+            const enEl = document.getElementById('stock-en');
+            const krEl = document.getElementById('stock-kr');
+            if (enEl) enEl.innerText = stockEN;
+            if (krEl) krEl.innerText = stockKR;
         } catch (err) {
             console.error("Lỗi đếm số dư caption:", err);
         }
-    }, 2500); // 2500ms = 2.5 giây trì hoãn
+    }, 600);
 }
 
 // Hàm trừ đi 1 ở giao diện mỗi khi có 1 caption bị lấy ra
@@ -158,16 +175,16 @@ function setLanguage(lang) {
 }
 
 // 2. Hàm bốc caption (CHỈ ĐỌC, chưa đánh dấu isUsed). Câu chỉ bị "trừ" khi người dùng copy thành công.
-async function fetchNextUniqueCaption(lang) {
+async function fetchNextUniqueCaption(lang, excludeId = null) {
     const snapshot = await db.collection('captions')
         .where('lang', '==', lang)
         .where('isUsed', '==', false)
         .limit(30)
         .get();
 
-    if (snapshot.empty) return null;
+    const docs = snapshot.docs.filter(d => d.id !== excludeId);
+    if (docs.length === 0) return null;
 
-    const docs = snapshot.docs;
     const randomDoc = docs[Math.floor(Math.random() * docs.length)];
     return { text: randomDoc.data().text, ref: randomDoc.ref, lang: lang };
 }
@@ -198,17 +215,22 @@ async function checkStock(lang) {
 }
 
 // 3. Hàm điều khiển hiển thị caption & Bắt lỗi (ĐÃ SỬA LỖI TREO MÀN HÌNH)
-async function pickRandomOtherCaption(animate = true) {
+async function pickRandomOtherCaption(animate = true, prefetch = null) {
     if (!currentLang) return;
 
     currentCaptionRef = null; // đang tải thì chưa cho copy
     const requestLang = currentLang;
-    captionTextEl.classList.add('out-of-stock');
-    captionTextEl.innerText = "⏳ Hệ thống đang bốc caption duy nhất...";
-    captionHashtagsEl.innerText = ""; // Tạm ẩn hashtag lúc đang tải
+    const usePrefetch = prefetch && prefetch.lang === requestLang;
+
+    // Có sẵn câu tải trước thì giữ nguyên màn hình, không chớp chữ "đang bốc"
+    if (!usePrefetch) {
+        captionTextEl.classList.add('out-of-stock');
+        captionTextEl.innerText = "⏳ Hệ thống đang bốc caption duy nhất...";
+        captionHashtagsEl.innerText = ""; // Tạm ẩn hashtag lúc đang tải
+    }
 
     try {
-        const picked = await fetchNextUniqueCaption(requestLang);
+        const picked = usePrefetch ? await prefetch.promise : await fetchNextUniqueCaption(requestLang);
 
         // Người dùng đã đổi ngôn ngữ trong lúc đang tải -> bỏ kết quả cũ
         if (requestLang !== currentLang) return;
@@ -345,7 +367,16 @@ function updateScallopFrame() {
     }
 }
 
-window.addEventListener('resize', updateScallopFrame);
+let scallopRaf = null;
+function scheduleScallopUpdate() {
+    if (scallopRaf) return;
+    scallopRaf = requestAnimationFrame(() => {
+        scallopRaf = null;
+        updateScallopFrame();
+    });
+}
+
+window.addEventListener('resize', scheduleScallopUpdate);
 
 // ==========================================
 // 3. COPY BUTTON & BURST PARTICLES
@@ -394,9 +425,16 @@ async function handleCopyClick() {
         return;
     }
 
+    // Copy thành công -> phát tiếng ngay
+    playCopySound();
+
     // Copy thành công -> khóa câu này lại và đánh dấu isUsed trên Firebase
     currentCaptionRef = null;
     const claimPromise = claimCaption(ref, lang);
+
+    // Tải sẵn câu kế tiếp ngay lúc này (chạy song song với hiệu ứng 1 giây) để đỡ phải chờ
+    const nextPromise = fetchNextUniqueCaption(lang, ref.id);
+    nextPromise.catch(() => { }); // lỗi (nếu có) sẽ được xử lý khi đến lượt dùng
 
     // 2. Animal wink effect for 1 second
     eyesOpenSvg.style.display = 'none';
@@ -426,8 +464,8 @@ async function handleCopyClick() {
 
     // 6. After 1 second, automatically transition to another random caption
     setTimeout(async () => {
-        await claimPromise; // đảm bảo câu cũ đã được đánh dấu xong rồi mới bốc câu mới
-        pickRandomOtherCaption();
+        await claimPromise; // đảm bảo câu cũ đã được đánh dấu xong
+        pickRandomOtherCaption(true, { lang: lang, promise: nextPromise });
     }, 1000);
 }
 
@@ -623,6 +661,19 @@ function shuffleArray(array) {
     return array;
 }
 
+let poyoiyoiPrefetchEl = null;
+// Tải trước file âm thanh sẽ phát ở lần bấm kế tiếp -> bấm là có tiếng ngay, không chờ mạng
+function prefetchNextPoyoiyoiAudio() {
+    try {
+        if (!poyoiyoiAudios || poyoiyoiAudios.length === 0) return;
+        if (shuffledAudios.length === 0) shuffledAudios = shuffleArray([...poyoiyoiAudios]);
+        const next = shuffledAudios[shuffledAudios.length - 1];
+        poyoiyoiPrefetchEl = new Audio();
+        poyoiyoiPrefetchEl.preload = 'auto';
+        poyoiyoiPrefetchEl.src = next;
+    } catch (e) { }
+}
+
 let poyoiyoiPlayToken = 0; // mỗi lần bấm 1 token, tránh các lần thử lại đè lên nhau
 
 function playPoyoiyoiSound(retry = 0) {
@@ -664,6 +715,7 @@ function playPoyoiyoiSound(retry = 0) {
         player.volume = 1.0;
 
         const playPromise = player.play();
+        prefetchNextPoyoiyoiAudio();
         if (playPromise !== undefined) {
             playPromise.catch(err => {
                 // AbortError: bị lần bấm mới ngắt ngang -> bình thường. NotAllowedError: trình duyệt chặn -> thử lại cũng vô ích.
@@ -738,12 +790,56 @@ document.addEventListener('DOMContentLoaded', () => {
     initDailyCounter();
     initStockCounters();
 
+    // Tiêu đề: tự co chữ cho vừa khung (chạy lại khi font tải xong hoặc đổi kích thước màn hình)
+    fitTitleLines();
+    window.addEventListener('load', fitTitleLines);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitleLines);
+    let fitRaf = null;
+    window.addEventListener('resize', () => {
+        if (fitRaf) return;
+        fitRaf = requestAnimationFrame(() => { fitRaf = null; fitTitleLines(); });
+    });
+
+    // Khi trình duyệt rảnh, tải sẵn file âm thanh đầu tiên của Poyoiyoi
+    if ('requestIdleCallback' in window) requestIdleCallback(prefetchNextPoyoiyoiAudio, { timeout: 4000 });
+    else setTimeout(prefetchNextPoyoiyoiAudio, 3000);
+
     // Tự động vẽ lại khung mây bất cứ khi nào thẻ thay đổi kích thước (Fix lỗi khung lúc ẩn lúc hiện)
     const scallopCard = document.getElementById('scallopCard');
     if (scallopCard) {
         const resizeObserver = new ResizeObserver(() => {
-            updateScallopFrame();
+            scheduleScallopUpdate();
         });
         resizeObserver.observe(scallopCard);
     }
 });
+
+// Co từng dòng tiêu đề cho nằm gọn trong khung, không bao giờ bị tràn hai bên
+function fitTitleLines() {
+    const banner = document.querySelector('.title-banner');
+    if (!banner) return;
+
+    // Dòng to (SVG): tính cỡ chữ để chữ chạy gần hết chiều dài đường cong (áp dụng cho cả lớp viền và lớp chữ)
+    const arcTexts = document.querySelectorAll('.title-arc-text');
+    const arcPath = document.getElementById('titleArcPath');
+    const arcTextPath = arcTexts.length ? arcTexts[0].querySelector('textPath') : null;
+    if (arcPath && arcTextPath && arcTextPath.getComputedTextLength) {
+        arcTexts.forEach(t => { t.style.fontSize = '30px'; });
+        const len = arcTextPath.getComputedTextLength();
+        if (len > 0) {
+            const target = arcPath.getTotalLength() - 3;
+            const size = Math.min(60, 30 * target / len).toFixed(2) + 'px';
+            arcTexts.forEach(t => { t.style.fontSize = size; });
+        }
+    }
+
+    const avail = banner.clientWidth - 16; // chừa chỗ cho viền vàng quanh chữ
+    banner.querySelectorAll('.title-small').forEach(el => {
+        el.style.fontSize = '';                 // về cỡ chữ gốc trong CSS
+        const w = el.offsetWidth;               // offsetWidth không bị ảnh hưởng bởi hiệu ứng phóng to khi rê chuột
+        if (w > avail && avail > 0) {
+            const size = parseFloat(getComputedStyle(el).fontSize);
+            el.style.fontSize = Math.floor(size * avail / w) + 'px';
+        }
+    });
+}
