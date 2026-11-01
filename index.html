@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>BrB w CLOVERIS 🍀 | Support CORTIS on X</title>
+    <title>BrB w CORTIShield x CLOVERIS 🍀 | Support CORTIS on X</title>
     <link rel="icon" type="image/png" href="assets/images/poyoiyoi.png" />
 
     <!-- Google Fonts: Baloo 2 & Nunito for 100% Flawless Vietnamese Diacritics + Jua & Gaegu for Korean -->
@@ -316,6 +316,7 @@
     <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
 
     <script>
         // Cấu hình Firebase kết nối trực tiếp đến dự án của bạn
@@ -332,6 +333,7 @@
         // Khởi tạo Firebase & Firestore
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const analytics = firebase.analytics();
     </script>
 
     <script src="assets/js/app.js"></script>
