@@ -18,6 +18,7 @@ function playCopySound() {
 }
 
 const poyoiyoiAudios = [
+    "assets/audio/1.mp4",
     "assets/audio/2.mp3",
     "assets/audio/3.mp3",
     "assets/audio/4.mp3",
