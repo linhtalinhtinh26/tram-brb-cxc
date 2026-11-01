@@ -180,7 +180,7 @@ async function fetchNextUniqueCaption(lang, excludeId = null) {
     const snapshot = await db.collection('captions')
         .where('lang', '==', lang)
         .where('isUsed', '==', false)
-        .limit(30)
+        .limit(10)
         .get();
 
     const docs = snapshot.docs.filter(d => d.id !== excludeId);
@@ -452,7 +452,7 @@ async function handleCopyClick() {
     burstAnimalEmojis();
 
     // 4. Show Toast Notification
-    showToast('Đã copy! 🍀');
+    showToast('Đã copy! Hãy dán vào X');
 
     // 5. Cập nhật đếm số và kiểm tra mốc chuỗi ngày
     const streakData = incrementDailyCounter();
