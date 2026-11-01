@@ -1,1 +1,3 @@
 scratch/
+serviceAccountKey*.json
+firebase-key*.json

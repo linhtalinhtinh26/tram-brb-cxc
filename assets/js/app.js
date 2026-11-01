@@ -60,7 +60,34 @@ const poyoiyoiAudios = [
     "assets/audio/40.mp3",
     "assets/audio/41.mp3",
     "assets/audio/42.mp3",
-    "assets/audio/43.mp3"
+    "assets/audio/43.mp3",
+    "assets/audio/44.mp3",
+    "assets/audio/45.mp3",
+    "assets/audio/46.mp3",
+    "assets/audio/47.mp3",
+    "assets/audio/48.mp3",
+    "assets/audio/49.mp3",
+    "assets/audio/50.mp3",
+    "assets/audio/51.mp3",
+    "assets/audio/52.mp3",
+    "assets/audio/53.mp3",
+    "assets/audio/54.mp3",
+    "assets/audio/55.mp3",
+    "assets/audio/56.mp3",
+    "assets/audio/57.mp3",
+    "assets/audio/58.mp3",
+    "assets/audio/59.mp3",
+    "assets/audio/60.mp3",
+    "assets/audio/61.mp3",
+    "assets/audio/62.mp3",
+    "assets/audio/63.mp3",
+    "assets/audio/64.mp3",
+    "assets/audio/65.mp3",
+    "assets/audio/66.mp3",
+    "assets/audio/67.mp3",
+    "assets/audio/68.mp3",
+    "assets/audio/69.mp3",
+    "assets/audio/70.mp3"
 ];
 
 // Poyoiyoi Cute Dialogues
@@ -180,7 +207,7 @@ async function fetchNextUniqueCaption(lang, excludeId = null) {
     const snapshot = await db.collection('captions')
         .where('lang', '==', lang)
         .where('isUsed', '==', false)
-        .limit(10)
+        .limit(20)
         .get();
 
     const docs = snapshot.docs.filter(d => d.id !== excludeId);
@@ -246,7 +273,7 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
             if (otherStillHasStock) {
                 captionTextEl.innerText = `⚠️ Kho ${currentLangName} đã hết!\n👉 Bạn hãy chuyển qua lấy ${otherLangName} nhé!`;
             } else {
-                captionTextEl.innerHTML = '🚨 Kho caption đã cạn kiệt!<br>📩 Vui lòng liên hệ <a href="https://www.facebook.com/pthh.uaoong.26" class="contact-link">Taho</a> để cập nhật thêm.';
+                captionTextEl.innerHTML = '🚨 Kho caption đã cạn kiệt!<br>📩 Vui lòng chờ hệ thống cập nhật thêm.';
             }
 
             currentCaptionText = "";
