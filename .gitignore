@@ -1,3 +1,19 @@
-scratch/
+# 1. Khóa bảo mật Firebase Admin (TUYỆT ĐỐI KHÔNG PUSH NÊN GITHUB)
+*.json.json
+key*.json
 serviceAccountKey*.json
 firebase-key*.json
+keys/
+
+# 2. Thư mục môi trường ảo Python
+.venv/
+venv/
+__pycache__/
+
+# 3. Thư mục nháp, dữ liệu thô & script test
+scratch/
+
+# 4. File rác của hệ điều hành & VS Code
+.DS_Store
+Thumbs.db
+.vscode/
