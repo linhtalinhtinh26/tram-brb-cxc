@@ -233,6 +233,7 @@ async function claimCaption(ref, lang) {
             return;
         } catch (err) {
             console.warn('Đánh dấu isUsed lỗi, thử lại:', err);
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
     }
 }

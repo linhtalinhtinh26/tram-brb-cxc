@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRẠM BRB CxC</title>
+    <!-- Thêm font chữ bo tròn dễ thương -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; /* Sửa lỗi chữ nằm ngang */
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #f1f8e9; 
+            /* Tạo nền chấm bi chuẩn style scrapbook */
+            background-image: radial-gradient(#c5e1a5 2px, transparent 2px); 
+            background-size: 30px 30px;
+        }
+        .maintenance-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 24px;
+            border: 3px dashed #81c784; /* Viền đứt quãng sổ lưu niệm */
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 85%;
+        }
+        .mascot-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+        h1 {
+            color: #2e7d32;
+            font-size: 24px;
+            margin: 0 0 12px 0;
+        }
+        p {
+            color: #558b2f;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        /* Hiệu ứng nảy nhẹ cho icon */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-card">
+        <div class="mascot-icon">🍀🛠️</div>
+        <h1>TRẠM BRB CxC</h1>
+        <p>Trạm đang bảo trì và nâng cấp hệ thống dữ liệu.<br>Poyoiyoi sẽ sớm quay lại, bạn chờ một chút nhé!</p>
+    </div>
+</body>
+</html>
