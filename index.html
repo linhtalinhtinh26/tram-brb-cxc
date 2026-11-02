@@ -1,343 +1,63 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>TRẠM BRB CxC</title>
-    <link rel="icon" type="image/png" href="assets/images/poyoiyoi.png" />
-
-    <!-- Google Fonts: Baloo 2 & Nunito for 100% Flawless Vietnamese Diacritics + Jua & Gaegu for Korean -->
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Jua&family=Nunito:wght@400;600;700;800;900&display=swap"
-        rel="stylesheet" />
-    <!-- Fredoka (font tròn mềm) có trục độ rộng để nén chữ vừa phải cho to hơn -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wdth,wght@75..125,600..700&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORTIShield - Đang bảo trì</title>
+    <!-- Thêm font chữ bo tròn dễ thương -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; /* Sửa lỗi chữ nằm ngang */
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #f1f8e9; 
+            /* Tạo nền chấm bi chuẩn style scrapbook */
+            background-image: radial-gradient(#c5e1a5 2px, transparent 2px); 
+            background-size: 30px 30px;
+        }
+        .maintenance-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 24px;
+            border: 3px dashed #81c784; /* Viền đứt quãng sổ lưu niệm */
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 85%;
+        }
+        .mascot-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+        h1 {
+            color: #2e7d32;
+            font-size: 24px;
+            margin: 0 0 12px 0;
+        }
+        p {
+            color: #558b2f;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        /* Hiệu ứng nảy nhẹ cho icon */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
 </head>
-
 <body>
-
-    <!-- SCRAPBOOK MAIN CARD CONTAINER -->
-    <main class="scrapbook-wrapper">
-
-        <!-- Top Gingham Ribbon with Scalloped Lace -->
-        <header class="gingham-header">
-            <div class="top-stats-bar">
-                <div class="stat-pill" title="Chuỗi ngày copy liên tiếp">🔥 Chuỗi: <span id="streakCount"
-                        class="stat-num">0</span></div>
-                <div class="stat-pill" title="Tổng số caption bạn đã copy từ trước đến nay">🌟 Tổng: <span
-                        id="totalCount" class="stat-num">0</span></div>
-            </div>
-            <div class="lace-trim-top"></div>
-        </header>
-
-        <!-- Notebook Dotted Paper Area -->
-        <div class="scrapbook-content">
-
-            <!-- Doodle Sparkles & Stars -->
-            <svg class="doodle-sparkle" style="top: 24px; left: 16px; width: 32px; height: 32px;" viewBox="0 0 50 50">
-                <path d="M25,2 L28,18 L44,25 L28,32 L25,48 L22,32 L6,25 L22,18 Z" fill="#ffe270" stroke="#f0b933"
-                    stroke-width="2" />
-                <circle cx="25" cy="25" r="3" fill="#ffffff" />
-            </svg>
-            <svg class="doodle-sparkle"
-                style="top: 36px; right: 18px; width: 30px; height: 30px; animation-delay: 1.2s;" viewBox="0 0 50 50">
-                <path d="M25,5 L27,20 L42,25 L27,30 L25,45 L23,30 L8,25 L23,20 Z" fill="#ffb4cf" stroke="#ea8fb1"
-                    stroke-width="2" />
-                <circle cx="25" cy="25" r="2.5" fill="#ffffff" />
-            </svg>
-            <div class="doodle-sparkle" style="top: 130px; left: 10px; font-size: 18px; animation-delay: 0.6s;">✨</div>
-            <div class="doodle-sparkle" style="top: 145px; right: 14px; font-size: 16px; animation-delay: 1.8s;">🍀
-            </div>
-
-            <!-- Main Title: Brand Reputation Boots -->
-            <div class="title-banner">
-                <h1 class="title-text" aria-label="Brand Reputation Boots - CORTIShield x CLOVERIS">
-                    <span class="title-small" aria-hidden="true">Brand Reputation Boots</span>
-                    <!-- Dòng to: SVG, chữ cong nhẹ như cây cầu. Cỡ chữ được app.js tự tính để lấp đầy chiều ngang -->
-                    <svg class="title-arc" viewBox="0 0 420 64" aria-hidden="true" focusable="false">
-                        <defs>
-                            <path id="titleArcPath" d="M4 54 Q210 38 416 54" />
-                        </defs>
-                        <!-- Lớp 1 (dưới): viền vàng bao trọn cả cụm chữ -->
-                        <text class="title-arc-text title-arc-halo">
-                            <textPath href="#titleArcPath" startOffset="50%">CORTIShield x CLOVERIS</textPath>
-                        </text>
-                        <!-- Lớp 2 (trên): chữ xanh, không viền nên không bị viền chữ khác đè lên -->
-                        <text class="title-arc-text title-arc-fill">
-                            <textPath href="#titleArcPath" startOffset="50%">CORTIShield x CLOVERIS</textPath>
-                        </text>
-                    </svg>
-                </h1>
-                <div style="display: block; margin-top: 10px;">
-                    <span class="title-sub">🍀 BRAND REPUTATION STATION FOR CORTIS 💚</span>
-                </div>
-            </div>
-
-            <!-- ========================================================
-           1. PHÂN TÁCH RÕ RÀNG PHẦN CHỌN NGÔN NGỮ (LANGUAGE CARD)
-           ======================================================== -->
-            <section class="lang-card-box" aria-label="Chọn ngôn ngữ">
-                <div class="lang-buttons-grid">
-                    <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">
-                        <span class="lang-flag">🇬🇧</span>
-                        <div class="lang-btn-text">
-                            <span class="lang-primary">English</span>
-                        </div>
-                    </button>
-
-                    <button type="button" class="lang-btn" id="btn-lang-kr" onclick="setLanguage('kr')">
-                        <span class="lang-flag">🇰🇷</span>
-                        <div class="lang-btn-text">
-                            <span class="lang-primary">한국어</span>
-                        </div>
-                    </button>
-                </div>
-
-                <div class="lang-counters"
-                    style="display: flex; justify-content: center; gap: 15px; margin-top: 14px; border-top: 1px dashed #d1ebd6; padding-top: 10px;">
-                    <div class="lang-counter-badge en-badge" title="Số lượng câu Tiếng Anh chưa sử dụng">
-                        🇬🇧 Còn lại: <span id="stock-en" style="font-weight: 900; margin-left: 2px;">...</span>
-                    </div>
-                    <div class="lang-counter-badge kr-badge" title="Số lượng câu Tiếng Hàn chưa sử dụng">
-                        🇰🇷 Còn lại: <span id="stock-kr" style="font-weight: 900; margin-left: 2px;">...</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Ranh giới phân chia rõ ràng phần chọn ngôn ngữ và phần caption -->
-            <div class="section-divider-stitch">
-                <span class="stitch-line"></span>
-                <span class="stitch-badge">🍀 CAPTION STATION 🍀</span>
-                <span class="stitch-line"></span>
-            </div>
-
-            <!-- Welcome Placeholder (shown BEFORE user selects any language) -->
-            <div class="welcome-placeholder" id="welcomePlaceholder">
-                <div style="font-size: 34px; margin-bottom: 8px;">💌🍀</div>
-                <h3>Chào mừng COER!</h3>
-                <p>Bấm chọn ngôn ngữ ở trên để mở trạm caption đẩy Brand Reputation cho <strong>CORTIS</strong> nha! ✨
-                </p>
-            </div>
-
-            <!-- ========================================================
-           2. MAIN CAPTION WORKSPACE
-           ======================================================== -->
-            <section class="caption-workspace" id="captionWorkspace">
-
-                <!-- Scallop Scrapbook Card with Authentic Wave Outline -->
-                <div class="scallop-card-container" id="scallopCard">
-
-                    <!-- Dynamic SVG drawing the scalloped cloud border -->
-                    <svg class="scallop-bg-svg" id="scallopBgSvg">
-                        <path id="scallopPathOuter" fill="#fffefa" stroke="#f7c2d2" stroke-width="4.5" />
-                        <path id="scallopPathDashed" fill="none" stroke="#f2a7be" stroke-width="2"
-                            stroke-dasharray="6,4" />
-                    </svg>
-
-                    <!-- Washi tape & cute stickers -->
-                    <div class="card-tape"></div>
-                    <span class="card-sticker-clover">🍀</span>
-                    <span class="card-sticker-cherry">🍒</span>
-
-                    <!-- Inner Card Content -->
-                    <div class="scallop-card-body">
-                        <div class="caption-box" id="captionBox">
-                            <p class="caption-text" id="captionText">Loading caption...</p>
-                            <p class="caption-hashtags" id="captionHashtags">#CORTIS #코르티스 #CLOVERIS</p>
-                        </div>
-                    </div>
-
-                    <!-- Hand-drawn yellow star doodle below card -->
-                    <svg class="doodle-star-card" viewBox="0 0 50 50">
-                        <path d="M25,4 L28,18 L43,24 L28,30 L25,44 L22,30 L7,24 L22,18 Z" fill="#ffe270"
-                            stroke="#f0b933" stroke-width="2" />
-                        <circle cx="25" cy="24" r="3" fill="#ffffff" />
-                    </svg>
-                </div>
-
-                <!-- ========================================================
-             3. ACTION CONTROLS & COPY BUTTON (Centered Hero)
-             ======================================================== -->
-                <div class="action-controls">
-                    <!-- Big Center Copy Button -->
-                    <button type="button" class="main-copy-btn" id="copyBtn" onclick="handleCopyClick()">
-                        <!-- Mascot Ears on top -->
-                        <div class="btn-ears">
-                            <div class="btn-ear"></div>
-                            <div class="btn-ear"></div>
-                        </div>
-
-                        <!-- Animal Mascot Face on Button -->
-                        <div class="btn-animal-header">
-                            <svg class="animal-mascot-svg" id="mascotFaceSvg" viewBox="0 0 36 20">
-                                <!-- Open Eyes State (Default) -->
-                                <g id="eyesOpen">
-                                    <ellipse cx="10" cy="9" rx="3.8" ry="4.2" fill="#ffffff" />
-                                    <circle cx="10.8" cy="8.6" r="2.2" fill="#143b20" />
-                                    <circle cx="8.8" cy="7.5" r="1" fill="#ffffff" />
-
-                                    <ellipse cx="26" cy="9" rx="3.8" ry="4.2" fill="#ffffff" />
-                                    <circle cx="26.8" cy="8.6" r="2.2" fill="#143b20" />
-                                    <circle cx="24.8" cy="7.5" r="1" fill="#ffffff" />
-
-                                    <path d="M15,12 Q18,15.5 21,12" stroke="#ffe57f" stroke-width="2.2"
-                                        stroke-linecap="round" fill="none" />
-                                    <circle cx="4" cy="12" r="2.2" fill="#ff94b8" />
-                                    <circle cx="32" cy="12" r="2.2" fill="#ff94b8" />
-                                </g>
-                                <!-- Winking Eyes State (Wink on click) -->
-                                <g id="eyesWink" style="display: none;">
-                                    <path d="M6,9 L14,9" stroke="#ffe57f" stroke-width="2.8" stroke-linecap="round" />
-                                    <ellipse cx="26" cy="8.5" rx="4" ry="4.2" fill="#ffffff" />
-                                    <circle cx="26.5" cy="8.5" r="2.2" fill="#143b20" />
-                                    <polygon
-                                        points="26.5,6.2 27.2,7.7 28.7,8.2 27.2,8.7 26.5,10.2 25.8,8.7 24.3,8.2 25.8,7.7"
-                                        fill="#ffe57f" />
-                                    <path d="M14,13 Q16,16 18,13 Q20,16 22,13" stroke="#ffe57f" stroke-width="2.2"
-                                        stroke-linecap="round" fill="none" />
-                                    <circle cx="4" cy="12" r="2.6" fill="#ff7da7" />
-                                    <circle cx="32" cy="12" r="2.6" fill="#ff7da7" />
-                                </g>
-                            </svg>
-                        </div>
-
-                        <!-- Button Label -->
-                        <div class="btn-label-text">Copy</div>
-                    </button>
-                </div>
-
-                <!-- ========================================================
-             4. COUNTER SECTION
-             ======================================================== -->
-                <div class="counter-badge" title="Tự động đặt lại khi sang ngày mới">
-                    <span>📅</span>
-                    <span>Hôm nay bạn đã lấy</span>
-                    <span class="counter-number" id="copyCounter">0</span>
-                    <span>caption</span>
-                </div>
-
-            </section>
-
-            <!-- ========================================================
-           4.5 NÚT SANG X (TWITTER) CỦA CORTISHIELD
-           ======================================================== -->
-            <div class="x-link-wrap">
-                <a class="x-link-btn" href="https://x.com/cortishieldvn" target="_blank" rel="noopener noreferrer"
-                    title="Mở trang X của CORTIShield để BR cho dễ">
-                    <svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="currentColor"
-                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                    <span class="x-link-text">CORTIShield</span>
-                    <span class="x-link-arrow">↗</span>
-                </a>
-            </div>
-
-            <!-- ========================================================
-           5. POYOIYOI MASCOT (Ball Cortis)
-           ======================================================== -->
-            <section class="poyoiyoi-container" aria-label="Poyoiyoi Mascot">
-                <!-- Poyoiyoi Image Button -->
-                <button type="button" class="poyoiyoi-btn" id="poyoiyoiBtn" onclick="handlePoyoiyoiClick()"
-                    title="Bấm vào tui để nghe âm thanh nè! 🎶">
-                    <img src="assets/images/poyoiyoi.png" alt="Poyoiyoi - Ball Cortis" class="poyoiyoi-img" decoding="async"
-                        onerror="this.src='assets/images/VMA-TEAM 4.png'" />
-                </button>
-
-                <!-- Hand-drawn Crayon Speech Bubble -->
-                <div class="speech-bubble" id="speechBubble" onclick="handlePoyoiyoiClick()">
-                    <p class="speech-text" id="speechText">Poyoiyoi đây! Bấm vào tui để nghe âm thanh nè 🍀🎶</p>
-                </div>
-            </section>
-
-        </div><!-- End .scrapbook-content -->
-
-        <!-- ========================================================
-       6. GINGHAM FOOTER
-       ======================================================== -->
-        <footer class="gingham-footer">
-            <div class="lace-trim-bottom"></div>
-            <div class="scrapbook-footer">
-                <div class="footer-reminder">
-                    🌱 Hãy đăng cách nhau khoảng 10' nhé! · Please post 10 minutes apart!
-                </div>
-                <div class="footer-quote">
-                    🌟 EVERY POST COUNTS, LET'S MAKE CORTIS SHINE BRIGHTER TOGETHER! 🍀
-                </div>
-                <!-- Tác giả / Support Credit -->
-                <div class="author-credit">
-                    Lỗi lầm gì liên hệ: <a href="https://www.facebook.com/pthh.uaoong.26" target="_blank"
-                        rel="noopener noreferrer">Taho</a> 🍀
-                </div>
-            </div>
-        </footer>
-
-        <audio id="poyoiyoiAudioPlayer" preload="auto"></audio>
-    </main>
-
-    <!-- Cute Toast Notification -->
-    <div class="cute-toast" id="cuteToast">
-        <span>🍀</span>
-        <span id="toastMsg">Đã copy!</span>
+    <div class="maintenance-card">
+        <div class="mascot-icon">🍀🛠️</div>
+        <h1>CORTIShield x CLOVERIS</h1>
+        <p>Trạm đang bảo trì và nâng cấp hệ thống dữ liệu.<br>Poyoiyoi sẽ sớm quay lại, bạn chờ một chút nhé!</p>
     </div>
-
-    <!-- ========================================================
-       🎉 HIỆU ỨNG CHÚC MỪNG CHUỖI NGÀY (MILESTONE MODAL)
-       ======================================================== -->
-    <div class="milestone-overlay" id="milestoneModal">
-        <div class="milestone-box">
-            <!-- Nút Tắt -->
-            <button class="close-modal-btn" onclick="closeMilestoneModal()">✖</button>
-
-            <!-- Hiệu ứng lấp lánh -->
-            <div class="confetti-sparkles">✨🌟✨</div>
-
-            <!-- Hình ảnh Mascot -->
-            <img src="assets/images/poyoiyoi.png" class="milestone-mascot" alt="Ball Cortis Happy"
-                onerror="this.src='assets/images/VMA-TEAM 4.png'">
-
-            <h2 class="milestone-title">Tuyệt vời quá!</h2>
-            <p class="milestone-desc">Bạn đã duy trì được chuỗi <br><span id="milestoneNumber"
-                    class="milestone-num">5</span><br> ngày liên tiếp đồng hành cùng CORTIS! 🍀</p>
-
-            <!-- AUDIO CHÚC MỪNG (BẠN CHÈN LINK FILE ÂM THANH CỦA BẠN VÀO src Ở DƯỚI NHÉ) -->
-            <audio id="milestoneAudioPlayer" src="assets/audio/chuoi_lien_tiep.mp3" preload="auto"></audio>
-        </div>
-    </div>
-
-    <!-- Firebase nạp ở cuối trang: trang hiện ra trước, Firebase tải ngầm sau -->
-    <!-- Firebase SDK (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
-
-    <script>
-        // Cấu hình Firebase kết nối trực tiếp đến dự án của bạn
-        const firebaseConfig = {
-            apiKey: "AIzaSyAHHutr57ANjGNcwf0wwpQUe8wox0VHcLE",
-            authDomain: "cloveris-br-hub.firebaseapp.com",
-            projectId: "cloveris-br-hub",
-            storageBucket: "cloveris-br-hub.firebasestorage.app",
-            messagingSenderId: "940208597824",
-            appId: "1:940208597824:web:39d14a4491f912ac7028a5",
-            measurementId: "G-R1JRT2Q244"
-        };
-
-        // Khởi tạo Firebase & Firestore
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const analytics = firebase.analytics();
-    </script>
-
-    <script src="assets/js/app.js"></script>
-
 </body>
-
 </html>
