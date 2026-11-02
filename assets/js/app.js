@@ -211,7 +211,7 @@ async function fetchNextUniqueCaption(lang, excludeId = null) {
     const snapshot = await db.collection('captions')
         .where('lang', '==', lang)
         .where('isUsed', '==', false)
-        .limit(20)
+        .limit(3)
         .get();
 
     const docs = snapshot.docs.filter(d => d.id !== excludeId);
