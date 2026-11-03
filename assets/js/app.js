@@ -134,18 +134,23 @@ let stockKR = 0;
 // Đếm số caption chưa dùng. Ưu tiên count() (chỉ tính 1 lượt đọc), nếu SDK không hỗ trợ thì đọc cách cũ.
 async function countUnused(lang) {
     try {
-        // Sử dụng count() để đếm số lượng tài liệu thỏa mãn điều kiện (Chỉ tốn 1 lượt Read)
-        const snapshot = await db.collection('captions')
+        // Chỉ bốc đúng 1 câu để xem kho thực sự còn hàng không (Tốn 1 lượt Read)
+        const q = db.collection('captions')
             .where('lang', '==', lang)
             .where('isUsed', '==', false)
-            .count()
-            .get();
+            .limit(1);
+
+        const snap = await q.get();
+        if (snap.empty) {
+            return 0; // Nếu kho Firebase hết sạch thật thì báo 0
+        }
         
-        return snapshot.data().count;
+        // Lấy số lượng từ bộ nhớ tạm của trình duyệt, nếu chưa có thì lấy mặc định là 1000
+        const localStock = parseInt(localStorage.getItem(`brb_stock_${lang}`) || '1000', 10);
+        return localStock;
     } catch (error) {
-        console.error("Lỗi khi đếm số lượng câu:", error);
-        // Nếu đếm lỗi, trả về 0 để tránh hiển thị sai
-        return 0; 
+        console.error("Lỗi đếm số dư:", error);
+        return 1000;
     }
 }
 
@@ -170,10 +175,14 @@ function initStockCounters() {
 function deductStockLocal(lang) {
     if (lang === 'en' && stockEN > 0) {
         stockEN--;
-        if (document.getElementById('stock-en')) document.getElementById('stock-en').innerText = stockEN;
+        localStorage.setItem('brb_stock_en', stockEN.toString()); // Ghi nhớ lại số mới
+        const el = document.getElementById('stock-en');
+        if (el) el.innerText = stockEN;
     } else if (lang === 'kr' && stockKR > 0) {
         stockKR--;
-        if (document.getElementById('stock-kr')) document.getElementById('stock-kr').innerText = stockKR;
+        localStorage.setItem('brb_stock_kr', stockKR.toString()); // Ghi nhớ lại số mới
+        const el = document.getElementById('stock-kr');
+        if (el) el.innerText = stockKR;
     }
 }
 
