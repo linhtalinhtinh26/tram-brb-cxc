@@ -1,4 +1,4 @@
-# 1. Khóa bảo mật Firebase Admin (TUYỆT ĐỐI KHÔNG PUSH NÊN GITHUB)
+# 1. Khóa bảo mật Firebase Admin
 *.json.json
 key*.json
 serviceAccountKey*.json
