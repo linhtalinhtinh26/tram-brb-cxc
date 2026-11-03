@@ -134,7 +134,7 @@ let stockKR = 0;
 // Đếm số caption chưa dùng. Ưu tiên count() (chỉ tính 1 lượt đọc), nếu SDK không hỗ trợ thì đọc cách cũ.
 async function countUnused(lang) {
     try {
-        // Chỉ bốc đúng 1 câu để xem kho thực sự còn hàng không (Tốn 1 lượt Read)
+        // 1. Kiểm tra nhanh xem kho thực tế còn hàng không (Tốn đúng 1 Read)
         const q = db.collection('captions')
             .where('lang', '==', lang)
             .where('isUsed', '==', false)
@@ -145,8 +145,15 @@ async function countUnused(lang) {
             return 0; // Nếu kho Firebase hết sạch thật thì báo 0
         }
         
-        // Lấy số lượng từ bộ nhớ tạm của trình duyệt, nếu chưa có thì lấy mặc định là 1000
-        const localStock = parseInt(localStorage.getItem(`brb_stock_${lang}`) || '1000', 10);
+        // 2. Đọc số lượng từ bộ nhớ máy
+        let localStock = parseInt(localStorage.getItem(`brb_stock_${lang}`), 10);
+        
+        // 3. TỰ ĐỘNG SỬA LỖI: Nếu Firebase còn hàng mà bộ nhớ lại báo <= 0 (bị kẹt), thì reset về 1000
+        if (isNaN(localStock) || localStock <= 0) {
+            localStock = 1000;
+            localStorage.setItem(`brb_stock_${lang}`, '1000');
+        }
+        
         return localStock;
     } catch (error) {
         console.error("Lỗi đếm số dư:", error);
