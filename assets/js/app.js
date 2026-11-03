@@ -133,21 +133,20 @@ let stockKR = 0;
 
 // Đếm số caption chưa dùng. Ưu tiên count() (chỉ tính 1 lượt đọc), nếu SDK không hỗ trợ thì đọc cách cũ.
 async function countUnused(lang) {
-    // Thay vì đếm toàn bộ, chỉ kéo đúng 1 câu để kiểm tra xem kho còn hàng không (Tốn đúng 1 lượt Read)
-    const q = db.collection('captions')
-        .where('lang', '==', lang)
-        .where('isUsed', '==', false)
-        .limit(1);
-
-    const snap = await q.get();
-
-    // Nếu không tìm thấy tài liệu nào (kho trống trơn)
-    if (snap.empty) {
-        return 0;
+    try {
+        // Sử dụng count() để đếm số lượng tài liệu thỏa mãn điều kiện (Chỉ tốn 1 lượt Read)
+        const snapshot = await db.collection('captions')
+            .where('lang', '==', lang)
+            .where('isUsed', '==', false)
+            .count()
+            .get();
+        
+        return snapshot.data().count;
+    } catch (error) {
+        console.error("Lỗi khi đếm số lượng câu:", error);
+        // Nếu đếm lỗi, trả về 0 để tránh hiển thị sai
+        return 0; 
     }
-    
-    // Nếu kho vẫn còn hàng, trả về một con số lớn (ví dụ 1000) để hiển thị lên giao diện
-    return 1000; 
 }
 
 // Chạy ngầm, 2 ngôn ngữ đếm song song
