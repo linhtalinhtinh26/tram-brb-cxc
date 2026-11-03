@@ -127,72 +127,6 @@ const copyBtn = document.getElementById('copyBtn');
 const poyoiyoiBtn = document.getElementById('poyoiyoiBtn');
 const speechTextEl = document.getElementById('speechText');
 
-// Biến lưu trữ số lượng tồn kho
-let stockEN = 0;
-let stockKR = 0;
-
-// Đếm số caption chưa dùng. Ưu tiên count() (chỉ tính 1 lượt đọc), nếu SDK không hỗ trợ thì đọc cách cũ.
-async function countUnused(lang) {
-    try {
-        // 1. Kiểm tra nhanh xem kho thực tế còn hàng không (Tốn đúng 1 Read)
-        const q = db.collection('captions')
-            .where('lang', '==', lang)
-            .where('isUsed', '==', false)
-            .limit(1);
-
-        const snap = await q.get();
-        if (snap.empty) {
-            return 0; // Nếu kho Firebase hết sạch thật thì báo 0
-        }
-        
-        // 2. Đọc số lượng từ bộ nhớ máy
-        let localStock = parseInt(localStorage.getItem(`brb_stock_${lang}`), 10);
-        
-        // 3. TỰ ĐỘNG SỬA LỖI: Nếu Firebase còn hàng mà bộ nhớ lại báo <= 0 (bị kẹt), thì reset về 1000
-        if (isNaN(localStock) || localStock <= 0) {
-            localStock = 1000;
-            localStorage.setItem(`brb_stock_${lang}`, '1000');
-        }
-        
-        return localStock;
-    } catch (error) {
-        console.error("Lỗi đếm số dư:", error);
-        return 1000;
-    }
-}
-
-// Chạy ngầm, 2 ngôn ngữ đếm song song
-function initStockCounters() {
-    setTimeout(async () => {
-        try {
-            const [en, kr] = await Promise.all([countUnused('en'), countUnused('kr')]);
-            stockEN = en;
-            stockKR = kr;
-            const enEl = document.getElementById('stock-en');
-            const krEl = document.getElementById('stock-kr');
-            if (enEl) enEl.innerText = stockEN;
-            if (krEl) krEl.innerText = stockKR;
-        } catch (err) {
-            console.error("Lỗi đếm số dư caption:", err);
-        }
-    }, 600);
-}
-
-// Hàm trừ đi 1 ở giao diện mỗi khi có 1 caption bị lấy ra
-function deductStockLocal(lang) {
-    if (lang === 'en' && stockEN > 0) {
-        stockEN--;
-        localStorage.setItem('brb_stock_en', stockEN.toString()); // Ghi nhớ lại số mới
-        const el = document.getElementById('stock-en');
-        if (el) el.innerText = stockEN;
-    } else if (lang === 'kr' && stockKR > 0) {
-        stockKR--;
-        localStorage.setItem('brb_stock_kr', stockKR.toString()); // Ghi nhớ lại số mới
-        const el = document.getElementById('stock-kr');
-        if (el) el.innerText = stockKR;
-    }
-}
-
 // ==========================================
 // ⚙️ REAL-TIME CAPTION SYSTEM (FIREBASE)
 // ==========================================
@@ -236,19 +170,15 @@ async function fetchNextUniqueCaption(lang, excludeId = null) {
     return { text: randomDoc.data().text, ref: randomDoc.ref, lang: lang };
 }
 
-// 2b. Đánh dấu isUsed = true SAU KHI copy thành công, rồi mới trừ số "Còn lại"
+// 2b. Đánh dấu isUsed = true SAU KHI copy thành công
 async function claimCaption(ref, lang) {
     for (let attempt = 0; attempt < 2; attempt++) {
         try {
-            let claimed = false;
             await db.runTransaction(async (transaction) => {
-                claimed = false;
                 const snap = await transaction.get(ref);
                 if (!snap.exists || snap.data().isUsed) return; // đã có người khác lấy trước
                 transaction.update(ref, { isUsed: true });
-                claimed = true;
             });
-            if (claimed) deductStockLocal(lang);
             return;
         } catch (err) {
             console.warn('Đánh dấu isUsed lỗi, thử lại:', err);
@@ -835,10 +765,9 @@ function spawnAudioNotes() {
 // 🚀 INITIALIZE ON LOAD
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    initDailyCounter();
-    initStockCounters();
+    initDailyCounter(); // Giữ lại đếm chuỗi ngày cá nhân
 
-    // Tiêu đề: tự co chữ cho vừa khung (chạy lại khi font tải xong hoặc đổi kích thước màn hình)
+    // Tiêu đề: tự co chữ cho vừa khung
     fitTitleLines();
     window.addEventListener('load', fitTitleLines);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitleLines);
@@ -852,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('requestIdleCallback' in window) requestIdleCallback(prefetchNextPoyoiyoiAudio, { timeout: 4000 });
     else setTimeout(prefetchNextPoyoiyoiAudio, 3000);
 
-    // Tự động vẽ lại khung mây bất cứ khi nào thẻ thay đổi kích thước (Fix lỗi khung lúc ẩn lúc hiện)
+    // Tự động vẽ lại khung mây khi thay đổi kích thước
     const scallopCard = document.getElementById('scallopCard');
     if (scallopCard) {
         const resizeObserver = new ResizeObserver(() => {
