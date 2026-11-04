@@ -3,94 +3,36 @@ const hashtagsData = {
     kr: "#CORTIS #코르티스"
 };
 
-// ===== ÂM THANH KHI BẤM NÚT COPY =====
-// Đổi tên file ở đây cho đúng với file audio của bạn (để trong thư mục assets/audio/)
+// Đường dẫn âm thanh nút Copy
 const COPY_SOUND_URL = "assets/audio/wink.mp3";
 const copySoundEl = new Audio(COPY_SOUND_URL);
-copySoundEl.preload = 'auto'; // tải sẵn, bấm là kêu ngay
+copySoundEl.preload = 'auto';
 
 function playCopySound() {
     try {
         copySoundEl.currentTime = 0;
         const p = copySoundEl.play();
-        if (p !== undefined) p.catch(() => { }); // trình duyệt chặn hoặc thiếu file thì bỏ qua, không ảnh hưởng chức năng copy
-    } catch (e) { }
+        if (p !== undefined) p.catch(() => {});
+    } catch (e) {}
 }
 
 const poyoiyoiAudios = [
-    "assets/audio/1.mp4",
-    "assets/audio/2.mp3",
-    "assets/audio/3.mp3",
-    "assets/audio/4.mp3",
-    "assets/audio/5.mp3",
-    "assets/audio/6.mp3",
-    "assets/audio/7.mp3",
-    "assets/audio/8.mp3",
-    "assets/audio/9.mp3",
-    "assets/audio/10.mp3",
-    "assets/audio/11.mp3",
-    "assets/audio/12.mp3",
-    "assets/audio/13.mp3",
-    "assets/audio/14.mp3",
-    "assets/audio/15.mp3",
-    "assets/audio/16.mp3",
-    "assets/audio/17.mp3",
-    "assets/audio/18.mp3",
-    "assets/audio/19.mp3",
-    "assets/audio/20.mp3",
-    "assets/audio/21.mp3",
-    "assets/audio/22.mp3",
-    "assets/audio/23.mp3",
-    "assets/audio/24.mp3",
-    "assets/audio/25.mp3",
-    "assets/audio/26.mp3",
-    "assets/audio/27.mp3",
-    "assets/audio/28.mp3",
-    "assets/audio/29.mp3",
-    "assets/audio/30.mp3",
-    "assets/audio/31.mp3",
-    "assets/audio/32.mp3",
-    "assets/audio/33.mp3",
-    "assets/audio/34.mp3",
-    "assets/audio/35.mp3",
-    "assets/audio/36.mp3",
-    "assets/audio/37.mp3",
-    "assets/audio/38.mp3",
-    "assets/audio/39.mp3",
-    "assets/audio/40.mp3",
-    "assets/audio/41.mp3",
-    "assets/audio/42.mp3",
-    "assets/audio/43.mp3",
-    "assets/audio/44.mp3",
-    "assets/audio/45.mp3",
-    "assets/audio/46.mp3",
-    "assets/audio/47.mp3",
-    "assets/audio/48.mp3",
-    "assets/audio/49.mp3",
-    "assets/audio/50.mp3",
-    "assets/audio/51.mp3",
-    "assets/audio/52.mp3",
-    "assets/audio/53.mp3",
-    "assets/audio/54.mp3",
-    "assets/audio/55.mp3",
-    "assets/audio/56.mp3",
-    "assets/audio/57.mp3",
-    "assets/audio/58.mp3",
-    "assets/audio/59.mp3",
-    "assets/audio/60.mp3",
-    "assets/audio/61.mp3",
-    "assets/audio/62.mp3",
-    "assets/audio/63.mp3",
-    "assets/audio/64.mp3",
-    "assets/audio/65.mp3",
-    "assets/audio/66.mp3",
-    "assets/audio/67.mp3",
-    "assets/audio/68.mp3",
-    "assets/audio/69.mp3",
-    "assets/audio/70.mp3"
+    "assets/audio/1.mp4", "assets/audio/2.mp3", "assets/audio/3.mp3", "assets/audio/4.mp3", "assets/audio/5.mp3",
+    "assets/audio/6.mp3", "assets/audio/7.mp3", "assets/audio/8.mp3", "assets/audio/9.mp3", "assets/audio/10.mp3",
+    "assets/audio/11.mp3", "assets/audio/12.mp3", "assets/audio/13.mp3", "assets/audio/14.mp3", "assets/audio/15.mp3",
+    "assets/audio/16.mp3", "assets/audio/17.mp3", "assets/audio/18.mp3", "assets/audio/19.mp3", "assets/audio/20.mp3",
+    "assets/audio/21.mp3", "assets/audio/22.mp3", "assets/audio/23.mp3", "assets/audio/24.mp3", "assets/audio/25.mp3",
+    "assets/audio/26.mp3", "assets/audio/27.mp3", "assets/audio/28.mp3", "assets/audio/29.mp3", "assets/audio/30.mp3",
+    "assets/audio/31.mp3", "assets/audio/32.mp3", "assets/audio/33.mp3", "assets/audio/34.mp3", "assets/audio/35.mp3",
+    "assets/audio/36.mp3", "assets/audio/37.mp3", "assets/audio/38.mp3", "assets/audio/39.mp3", "assets/audio/40.mp3",
+    "assets/audio/41.mp3", "assets/audio/42.mp3", "assets/audio/43.mp3", "assets/audio/44.mp3", "assets/audio/45.mp3",
+    "assets/audio/46.mp3", "assets/audio/47.mp3", "assets/audio/48.mp3", "assets/audio/49.mp3", "assets/audio/50.mp3",
+    "assets/audio/51.mp3", "assets/audio/52.mp3", "assets/audio/53.mp3", "assets/audio/54.mp3", "assets/audio/55.mp3",
+    "assets/audio/56.mp3", "assets/audio/57.mp3", "assets/audio/58.mp3", "assets/audio/59.mp3", "assets/audio/60.mp3",
+    "assets/audio/61.mp3", "assets/audio/62.mp3", "assets/audio/63.mp3", "assets/audio/64.mp3", "assets/audio/65.mp3",
+    "assets/audio/66.mp3", "assets/audio/67.mp3", "assets/audio/68.mp3", "assets/audio/69.mp3", "assets/audio/70.mp3"
 ];
 
-// Poyoiyoi Cute Dialogues
 const poyoiyoiQuotes = [
     "Poyoiyoi! Chăm chỉ vì CORTIS nha Coer! 🍀",
     "Poyoiyoiii~ CORTIS no.1 trong tim tui! ✨🌟",
@@ -105,14 +47,13 @@ const poyoiyoiQuotes = [
 // ==========================================
 let currentLang = null;
 let currentCaptionText = "";
-let currentCaptionRef = null;   // tham chiếu document Firestore của câu đang hiển thị
-let currentCaptionLang = null;  // ngôn ngữ của câu đang hiển thị
-let isCopying = false;          // khóa chống bấm Copy liên tiếp
+let currentCaptionRef = null;
+let currentCaptionLang = null;
+let isCopying = false;
 
-// Khai báo 2 "túi" để đựng caption đã xáo trộn cho tiếng Anh và Hàn
+// Lưu trữ danh sách caption đã xáo trộn ngẫu nhiên
 let shuffledCaptions = { en: [], kr: [] };
 
-// DOM Elements
 const welcomePlaceholder = document.getElementById('welcomePlaceholder');
 const captionWorkspace = document.getElementById('captionWorkspace');
 const captionTextEl = document.getElementById('captionText');
@@ -131,31 +72,26 @@ const speechTextEl = document.getElementById('speechText');
 // ⚙️ REAL-TIME CAPTION SYSTEM (FIREBASE)
 // ==========================================
 
-// 1. Hàm xử lý khi người dùng bấm chọn ngôn ngữ
 function setLanguage(lang) {
     if (currentLang === lang) return;
     currentLang = lang;
 
-    // Cập nhật trạng thái đổi màu nút bấm
     document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
     document.getElementById('btn-lang-kr').classList.toggle('active', lang === 'kr');
 
-    // Ẩn lời chào, hiện khung caption
     if (welcomePlaceholder) welcomePlaceholder.style.display = 'none';
     if (captionWorkspace) captionWorkspace.style.display = 'flex';
 
-    // Chỉnh font nếu là tiếng Hàn
     if (lang === 'kr') {
         captionTextEl.classList.add('lang-kr');
     } else {
         captionTextEl.classList.remove('lang-kr');
     }
 
-    // Rút ngay 1 câu từ Firebase
     pickRandomOtherCaption(false);
 }
 
-// 2. Hàm bốc caption (CHỈ ĐỌC, chưa đánh dấu isUsed). Câu chỉ bị "trừ" khi người dùng copy thành công.
+// Trích xuất ngẫu nhiên dữ liệu Caption trạng thái chưa sử dụng
 async function fetchNextUniqueCaption(lang, excludeId = null) {
     const snapshot = await db.collection('captions')
         .where('lang', '==', lang)
@@ -170,18 +106,18 @@ async function fetchNextUniqueCaption(lang, excludeId = null) {
     return { text: randomDoc.data().text, ref: randomDoc.ref, lang: lang };
 }
 
-// 2b. Đánh dấu isUsed = true SAU KHI copy thành công
+// Giao dịch đánh dấu isUsed (State sync) khi người dùng hoàn thành copy
 async function claimCaption(ref, lang) {
     for (let attempt = 0; attempt < 2; attempt++) {
         try {
             await db.runTransaction(async (transaction) => {
                 const snap = await transaction.get(ref);
-                if (!snap.exists || snap.data().isUsed) return; // đã có người khác lấy trước
+                if (!snap.exists || snap.data().isUsed) return;
                 transaction.update(ref, { isUsed: true });
             });
             return;
         } catch (err) {
-            console.warn('Đánh dấu isUsed lỗi, thử lại:', err);
+            console.warn('Sync state failed. Retrying:', err);
             await new Promise(resolve => setTimeout(resolve, 2000));
         }
     }
@@ -192,25 +128,25 @@ async function checkStock(lang) {
     return !snap.empty;
 }
 
-// 3. Hàm điều khiển hiển thị caption & Bắt lỗi (ĐÃ SỬA LỖI TREO MÀN HÌNH)
+// Điều hướng hiển thị Caption và bắt lỗi truy vấn
 async function pickRandomOtherCaption(animate = true, prefetch = null) {
     if (!currentLang) return;
 
-    currentCaptionRef = null; // đang tải thì chưa cho copy
+    currentCaptionRef = null;
     const requestLang = currentLang;
     const usePrefetch = prefetch && prefetch.lang === requestLang;
 
-    // Có sẵn câu tải trước thì giữ nguyên màn hình, không chớp chữ "đang bốc"
+    // Giữ nguyên giao diện nếu có data prefetch
     if (!usePrefetch) {
         captionTextEl.classList.add('out-of-stock');
         captionTextEl.innerText = "⏳ Hệ thống đang bốc caption duy nhất...";
-        captionHashtagsEl.innerText = ""; // Tạm ẩn hashtag lúc đang tải
+        captionHashtagsEl.innerText = "";
     }
 
     try {
         const picked = usePrefetch ? await prefetch.promise : await fetchNextUniqueCaption(requestLang);
 
-        // Người dùng đã đổi ngôn ngữ trong lúc đang tải -> bỏ kết quả cũ
+        // Hủy render nếu user chuyển ngôn ngữ giữa chừng
         if (requestLang !== currentLang) return;
 
         if (!picked) {
@@ -227,7 +163,7 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
             }
 
             currentCaptionText = "";
-            captionHashtagsEl.innerText = ""; // XÓA SẠCH HASHTAG KHI HIỆN THÔNG BÁO HẾT
+            captionHashtagsEl.innerText = "";
             if (copyBtn) copyBtn.style.display = 'none';
             return;
         }
@@ -241,13 +177,13 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
         else renderCaption();
 
     } catch (error) {
-        // NẾU CÓ LỖI MẠNG HOẶC FIREBASE, HIỂN THỊ THẲNG RA MÀN HÌNH CHỐNG TREO
+        // Thông báo lỗi truy xuất/hết Quota tại Frontend
         captionTextEl.classList.add('out-of-stock');
         captionTextEl.innerHTML = `❌ Lỗi kết nối hoặc Firebase quá tải:<br><span style="font-size: 14px; color: #d32f2f;">${error.message}</span><br>Vui lòng F5 thử lại!`;
         currentCaptionText = "";
         captionHashtagsEl.innerText = "";
         if (copyBtn) copyBtn.style.display = 'none';
-        console.error("Lỗi lấy caption:", error);
+        console.error("Caption Load Error:", error);
     } finally {
         isCopying = false;
     }
@@ -261,11 +197,10 @@ function animateCaptionSwitch() {
     }, 220);
 }
 
-// 4. Hàm Render Giao diện (Đảm bảo chỉ hiện 2 tag)
 function renderCaption() {
     if (!currentLang) return;
     captionTextEl.innerText = currentCaptionText;
-    captionHashtagsEl.innerText = hashtagsData[currentLang] || "#CORTIS #코르티스"; // Hiển thị lại 2 tag khi có caption
+    captionHashtagsEl.innerText = hashtagsData[currentLang] || "#CORTIS #코르티스";
 }
 
 // ==========================================
@@ -359,7 +294,7 @@ window.addEventListener('resize', scheduleScallopUpdate);
 // ==========================================
 // 3. COPY BUTTON & BURST PARTICLES
 // ==========================================
-// Copy vào clipboard, trả về true/false để biết có thật sự copy được hay không
+// Ghi nội dung text vào Clipboard
 async function copyTextToClipboard(text) {
     try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -367,7 +302,7 @@ async function copyTextToClipboard(text) {
             return true;
         }
     } catch (err) {
-        console.warn('Clipboard API lỗi, thử cách dự phòng:', err);
+        console.warn('Clipboard API error. Falling back:', err);
     }
     try {
         const tempInput = document.createElement('textarea');
@@ -386,7 +321,6 @@ async function copyTextToClipboard(text) {
 }
 
 async function handleCopyClick() {
-    // Chỉ cho copy khi đã có caption thật (không copy chữ "đang bốc...") và không đang xử lý
     if (!currentLang || !currentCaptionRef || isCopying) return;
     isCopying = true;
 
@@ -394,27 +328,22 @@ async function handleCopyClick() {
     const lang = currentCaptionLang;
     const fullTextToCopy = `${captionTextEl.innerText}\n\n${captionHashtagsEl.innerText}`;
 
-    // 1. Copy to clipboard (phải làm đầu tiên để trình duyệt còn "cử chỉ bấm" của người dùng)
     const copied = await copyTextToClipboard(fullTextToCopy);
     if (!copied) {
-        // Copy thất bại: KHÔNG trừ câu, KHÔNG đếm, KHÔNG đổi câu
         showToast('Chưa copy được, bạn bấm lại nha 🥲');
         isCopying = false;
         return;
     }
 
-    // Copy thành công -> phát tiếng ngay
     playCopySound();
 
-    // Copy thành công -> khóa câu này lại và đánh dấu isUsed trên Firebase
     currentCaptionRef = null;
     const claimPromise = claimCaption(ref, lang);
 
-    // Tải sẵn câu kế tiếp ngay lúc này (chạy song song với hiệu ứng 1 giây) để đỡ phải chờ
+    // Tải trước (prefetch) caption kế tiếp để giảm delay UI
     const nextPromise = fetchNextUniqueCaption(lang, ref.id);
-    nextPromise.catch(() => { }); // lỗi (nếu có) sẽ được xử lý khi đến lượt dùng
+    nextPromise.catch(() => {});
 
-    // 2. Animal wink effect for 1 second
     eyesOpenSvg.style.display = 'none';
     eyesWinkSvg.style.display = 'block';
     copyBtn.style.transform = 'scale(0.96)';
@@ -425,29 +354,23 @@ async function handleCopyClick() {
         copyBtn.style.transform = '';
     }, 1000);
 
-    // 3. Burst member emojis outward from the copy button
     burstAnimalEmojis();
-
-    // 4. Show Toast Notification
     showToast('Đã copy! Hãy dán vào X');
 
-    // 5. Cập nhật đếm số và kiểm tra mốc chuỗi ngày
     const streakData = incrementDailyCounter();
     if (streakData.isMilestone) {
-        // Nếu đạt mốc (5,10,15...), trễ 0.8s cho bay icon xong rồi hiện popup
         setTimeout(() => {
             showMilestoneModal(streakData.streak);
         }, 800);
     }
 
-    // 6. After 1 second, automatically transition to another random caption
     setTimeout(async () => {
-        await claimPromise; // đảm bảo câu cũ đã được đánh dấu xong
+        await claimPromise;
         pickRandomOtherCaption(true, { lang: lang, promise: nextPromise });
     }, 1000);
 }
 
-// Burst member emojis: 🐶 (Dog), 🦊 (Fox), 🦅 (Eagle), 🦒 (Giraffe), 🐢 (Turtle)
+// Hiệu ứng hạt Emojis khi copy
 function burstAnimalEmojis() {
     const emojis = ['🐶', '🦊', '🦅', '🦒', '🐢', '🍀', '✨'];
     const rect = copyBtn.getBoundingClientRect();
@@ -506,13 +429,11 @@ const LAST_STREAK_DATE_KEY = 'cloveris_br_last_streak_date';
 const LANG_COUNT_EN_KEY = 'cloveris_br_lang_en_count';
 const LANG_COUNT_KR_KEY = 'cloveris_br_lang_kr_count';
 
-// Hàm lấy chuỗi ngày hiện tại (YYYY-MM-DD)
 function getTodayString() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Hàm kiểm tra xem ngày d1 có đúng là NGÀY HÔM QUA so với d2 không
 function isYesterday(dateStr1, dateStr2) {
     if (!dateStr1 || !dateStr2) return false;
     const d1 = new Date(dateStr1);
@@ -583,52 +504,43 @@ function incrementDailyCounter() {
     return { streak: streak, isMilestone: justHitMilestone };
 }
 
-// Hàm mở Popup chúc mừng
 function showMilestoneModal(streakNum) {
     document.getElementById('milestoneNumber').innerText = streakNum;
     const modal = document.getElementById('milestoneModal');
     modal.classList.add('show');
 
-    // Phát âm thanh
     try {
         const audio = document.getElementById('milestoneAudioPlayer');
         audio.currentTime = 0;
-        audio.play().catch(e => console.log('Trình duyệt chặn tự động phát âm thanh:', e));
-    } catch (err) { }
+        audio.play().catch(() => {});
+    } catch (err) {}
 }
 
-// Hàm đóng Popup
 function closeMilestoneModal() {
     const modal = document.getElementById('milestoneModal');
     modal.classList.remove('show');
     try {
         document.getElementById('milestoneAudioPlayer').pause();
-    } catch (err) { }
+    } catch (err) {}
 }
 
 // ==========================================
 // 5. POYOIYOI MASCOT (AUDIO & QUOTES)
 // ==========================================
-let shuffledAudios = []; // Khai báo biến lưu danh sách xáo trộn
+let shuffledAudios = [];
 
 function handlePoyoiyoiClick() {
-    // 1. Jiggle animation
     poyoiyoiBtn.classList.remove('jiggle');
     void poyoiyoiBtn.offsetWidth;
     poyoiyoiBtn.classList.add('jiggle');
 
-    // 2. Speech bubble random quote
     const randomQuote = poyoiyoiQuotes[Math.floor(Math.random() * poyoiyoiQuotes.length)];
     speechTextEl.innerText = randomQuote;
 
-    // 3. Floating music notes
     spawnAudioNotes();
-
-    // 4. Play audio từ danh sách đã xáo trộn
     playPoyoiyoiSound();
 }
 
-// Hàm xáo trộn danh sách (Fisher-Yates Shuffle)
 function shuffleArray(array) {
     let currentIndex = array.length, randomIndex;
     while (currentIndex !== 0) {
@@ -640,7 +552,7 @@ function shuffleArray(array) {
 }
 
 let poyoiyoiPrefetchEl = null;
-// Tải trước file âm thanh sẽ phát ở lần bấm kế tiếp -> bấm là có tiếng ngay, không chờ mạng
+
 function prefetchNextPoyoiyoiAudio() {
     try {
         if (!poyoiyoiAudios || poyoiyoiAudios.length === 0) return;
@@ -649,15 +561,14 @@ function prefetchNextPoyoiyoiAudio() {
         poyoiyoiPrefetchEl = new Audio();
         poyoiyoiPrefetchEl.preload = 'auto';
         poyoiyoiPrefetchEl.src = next;
-    } catch (e) { }
+    } catch (e) {}
 }
 
-let poyoiyoiPlayToken = 0; // mỗi lần bấm 1 token, tránh các lần thử lại đè lên nhau
+let poyoiyoiPlayToken = 0;
 
 function playPoyoiyoiSound(retry = 0) {
     if (!poyoiyoiAudios || poyoiyoiAudios.length === 0) return;
 
-    // Nếu đã phát hết (hoặc chưa phát lần nào), nạp lại và xáo trộn 1 vòng mới
     if (shuffledAudios.length === 0) {
         shuffledAudios = shuffleArray([...poyoiyoiAudios]);
     }
@@ -666,14 +577,11 @@ function playPoyoiyoiSound(retry = 0) {
     const player = document.getElementById('poyoiyoiAudioPlayer');
     const myToken = ++poyoiyoiPlayToken;
 
-    // Nếu file này lỗi/không tải được -> tự nhảy sang file kế tiếp, người dùng không bị "im lặng"
     const skipToNext = (reason) => {
-        if (myToken !== poyoiyoiPlayToken) return; // đã có lần bấm/lần thử mới hơn
-        console.warn(`🔇 Poyoiyoi: file lỗi "${audioUrl}" (${reason}) -> thử file khác`);
+        if (myToken !== poyoiyoiPlayToken) return;
+        console.warn(`[Audio] Fetch failed for "${audioUrl}" (${reason}) - Advancing to next track`);
         if (retry < 5) playPoyoiyoiSound(retry + 1);
     };
-
-    console.log('🔊 Poyoiyoi phát:', audioUrl);
 
     try {
         if (!player) {
@@ -694,20 +602,20 @@ function playPoyoiyoiSound(retry = 0) {
 
         const playPromise = player.play();
         prefetchNextPoyoiyoiAudio();
+        
         if (playPromise !== undefined) {
             playPromise.catch(err => {
-                // AbortError: bị lần bấm mới ngắt ngang -> bình thường. NotAllowedError: trình duyệt chặn -> thử lại cũng vô ích.
+                // Bỏ qua lỗi trình duyệt chủ động block (NotAllowed) hoặc ngắt quãng (Abort)
                 if (err.name === 'AbortError' || err.name === 'NotAllowedError') return;
                 skipToNext(err.name);
             });
         }
     } catch (e) {
-        console.warn('General audio error:', e);
+        console.warn('Playback exception:', e);
         skipToNext('exception');
     }
 }
 
-// Web Audio Synthesizer Fallback
 function playCuteWebAudioPop() {
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -717,12 +625,7 @@ function playCuteWebAudioPop() {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        const freqs = [
-            [520, 880],
-            [440, 780],
-            [600, 1020],
-            [350, 700]
-        ];
+        const freqs = [[520, 880], [440, 780], [600, 1020], [350, 700]];
         const chosen = freqs[Math.floor(Math.random() * freqs.length)];
 
         osc.type = 'sine';
@@ -741,7 +644,6 @@ function playCuteWebAudioPop() {
         console.error(e);
     }
 }
-
 
 function spawnAudioNotes() {
     const notes = ['🎶', '🎵', '✨', '🍀', '💚'];
@@ -765,23 +667,25 @@ function spawnAudioNotes() {
 // 🚀 INITIALIZE ON LOAD
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    initDailyCounter(); // Giữ lại đếm chuỗi ngày cá nhân
+    initDailyCounter();
 
-    // Tiêu đề: tự co chữ cho vừa khung
     fitTitleLines();
     window.addEventListener('load', fitTitleLines);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitleLines);
+    
     let fitRaf = null;
     window.addEventListener('resize', () => {
         if (fitRaf) return;
         fitRaf = requestAnimationFrame(() => { fitRaf = null; fitTitleLines(); });
     });
 
-    // Khi trình duyệt rảnh, tải sẵn file âm thanh đầu tiên của Poyoiyoi
-    if ('requestIdleCallback' in window) requestIdleCallback(prefetchNextPoyoiyoiAudio, { timeout: 4000 });
-    else setTimeout(prefetchNextPoyoiyoiAudio, 3000);
+    // Ưu tiên nạp trước audio khi browser ở trạng thái Idle
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(prefetchNextPoyoiyoiAudio, { timeout: 4000 });
+    } else {
+        setTimeout(prefetchNextPoyoiyoiAudio, 3000);
+    }
 
-    // Tự động vẽ lại khung mây khi thay đổi kích thước
     const scallopCard = document.getElementById('scallopCard');
     if (scallopCard) {
         const resizeObserver = new ResizeObserver(() => {
@@ -791,12 +695,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Co từng dòng tiêu đề cho nằm gọn trong khung, không bao giờ bị tràn hai bên
+// Calculate inline scaling to prevent text overflow
 function fitTitleLines() {
     const banner = document.querySelector('.title-banner');
     if (!banner) return;
 
-    // Dòng to (SVG): tính cỡ chữ để chữ chạy gần hết chiều dài đường cong (áp dụng cho cả lớp viền và lớp chữ)
     const arcTexts = document.querySelectorAll('.title-arc-text');
     const arcPath = document.getElementById('titleArcPath');
     const arcTextPath = arcTexts.length ? arcTexts[0].querySelector('textPath') : null;
@@ -810,10 +713,10 @@ function fitTitleLines() {
         }
     }
 
-    const avail = banner.clientWidth - 16; // chừa chỗ cho viền vàng quanh chữ
+    const avail = banner.clientWidth - 16;
     banner.querySelectorAll('.title-small').forEach(el => {
-        el.style.fontSize = '';                 // về cỡ chữ gốc trong CSS
-        const w = el.offsetWidth;               // offsetWidth không bị ảnh hưởng bởi hiệu ứng phóng to khi rê chuột
+        el.style.fontSize = '';
+        const w = el.offsetWidth;
         if (w > avail && avail > 0) {
             const size = parseFloat(getComputedStyle(el).fontSize);
             el.style.fontSize = Math.floor(size * avail / w) + 'px';
