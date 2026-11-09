@@ -363,7 +363,7 @@ async function handleCopyClick() {
     }, 1000);
 
     burstAnimalEmojis();
-    showToast('Đã copy! Hãy dán vào X');
+    showToast('Đã copy mà không làm BRB là tôi đến gõ cửa đấy!!!');
 
     const streakData = incrementDailyCounter();
     if (streakData.isRecovery) {
