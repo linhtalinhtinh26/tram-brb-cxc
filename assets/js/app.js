@@ -497,11 +497,7 @@ function initDailyCounter() {
     document.getElementById('totalCount').innerText = totalCount;
     document.getElementById('streakCount').innerText = streak;
 
-    if (!sessionStorage.getItem('rules_shown')) {
-        document.getElementById('rulesModal').classList.add('show');
-    } else {
-        checkAndShowRecoveryPrompt();
-    }
+    document.getElementById('rulesModal').classList.add('show');
 }
 
 function incrementDailyCounter() {
@@ -571,7 +567,6 @@ function incrementDailyCounter() {
 // ---------------------------------------------
 function closeRulesModal() {
     document.getElementById('rulesModal').classList.remove('show');
-    sessionStorage.setItem('rules_shown', 'true');
     checkAndShowRecoveryPrompt(); 
 }
 
