@@ -607,14 +607,30 @@ function closeRecoverySuccess() {
     document.getElementById('recoverySuccessModal').classList.remove('show');
 }
 
+const streakAudioFiles = [
+    "assets/audio/streak_1.mp3",
+    "assets/audio/streak_2.mp3",
+    "assets/audio/streak_3.mp3",
+    "assets/audio/streak_4.mp3",
+    "assets/audio/streak_5.mp3"
+];
+const STREAK_INDEX_KEY = 'cloveris_streak_audio_index';
+
 function showMilestoneModal(streakNum) {
     document.getElementById('milestoneNumber').innerText = streakNum;
     const modal = document.getElementById('milestoneModal');
     modal.classList.add('show');
     try {
         const audio = document.getElementById('milestoneAudioPlayer');
+        
+        let currentIndex = parseInt(localStorage.getItem(STREAK_INDEX_KEY) || '0', 10);
+        
+        audio.src = streakAudioFiles[currentIndex % streakAudioFiles.length];
         audio.currentTime = 0;
         audio.play().catch(() => {});
+        
+        currentIndex++;
+        localStorage.setItem(STREAK_INDEX_KEY, currentIndex.toString());
     } catch (err) {}
 }
 
