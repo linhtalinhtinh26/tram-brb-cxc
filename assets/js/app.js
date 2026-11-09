@@ -363,7 +363,7 @@ async function handleCopyClick() {
     }, 1000);
 
     burstAnimalEmojis();
-    showToast('Đã copy mà không làm BRB là tôi đến gõ cửa đấy!!!');
+    showToast('Đã copy! Vui lòng qua X đăng ngay. Trạm có giới hạn tài nguyên, xin đừng copy rồi bỏ đó!');
 
     const streakData = incrementDailyCounter();
     if (streakData.isRecovery) {
@@ -431,7 +431,7 @@ function showToast(msg) {
     if (toastTimeout) clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
         cuteToastEl.classList.remove('show');
-    }, 2200);
+    }, 4000);
 }
 
 // ==========================================
