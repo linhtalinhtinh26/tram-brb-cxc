@@ -846,3 +846,44 @@ function fitTitleLines() {
         }
     });
 }
+
+// ==========================================
+// 🤫 TÍNH NĂNG BÍ MẬT: KHÔI PHỤC CHUỖI CHO NGƯỜI CŨ
+// (Bấm 5 lần vào tiêu đề để gọi hộp thoại)
+// ==========================================
+let secretClickCount = 0;
+let secretClickTimer = null;
+
+const titleBannerEl = document.querySelector('.title-banner');
+if (titleBannerEl) {
+    titleBannerEl.addEventListener('click', () => {
+        secretClickCount++;
+        
+        // Nếu ngưng bấm quá 1.5 giây thì reset bộ đếm
+        if (secretClickTimer) clearTimeout(secretClickTimer);
+        secretClickTimer = setTimeout(() => {
+            secretClickCount = 0;
+        }, 1500);
+
+        // Đạt đủ 5 lần bấm nhanh liên tiếp
+        if (secretClickCount === 5) {
+            secretClickCount = 0; // Reset lại
+            
+            // Hiện hộp thoại nhập số (dùng hàm prompt mặc định của trình duyệt)
+            const oldStreak = prompt("🍀 TRẠM BÍ MẬT CHO COER:\n\nVì bạn đã vào web trước khi hệ thống mới update cho phép bạn khôi phục chuỗi nên hãy nhập lại số chuỗi mà bạn đã cày được trước đó vào đây sau đó bù chuỗi khôi phục theo quy tắc [1 cap tối thiểu cho hôm nay + 2 cap bù/ngày lỡ] nhé (Mọi người tự giác trung thực nha):");
+            
+            // Nếu người dùng có nhập số hợp lệ
+            if (oldStreak && !isNaN(oldStreak) && parseInt(oldStreak) > 0) {
+                // Giả lập họ lỡ 1 ngày (để tạo mục tiêu bù nhẹ nhàng: 1 ngày lỡ x 2 + 1 = 3 cap)
+                localStorage.setItem('cloveris_frozen_streak', parseInt(oldStreak).toString());
+                localStorage.setItem('cloveris_missed_days', "1"); 
+                
+                // Mở khóa bảng thông báo (xóa cờ đã hiển thị đi)
+                sessionStorage.removeItem('recovery_prompted');
+                
+                // Gọi bảng thử thách khôi phục ra
+                checkAndShowRecoveryPrompt();
+            }
+        }
+    });
+}
