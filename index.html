@@ -232,6 +232,61 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
 
+    <!-- ========================================================
+       🛑 BẢNG THÔNG BÁO LUẬT (HIỆN LÚC MỚI VÀO)
+       ======================================================== -->
+    <div class="custom-modal-overlay" id="rulesModal">
+        <div class="custom-modal-box">
+            <h2>🚨 LƯU Ý GIÚP TRẠM BRB CxC ỔN ĐỊNH 🍀</h2>
+            <div class="rules-content">
+                <p style="margin-bottom: 12px; font-weight: 700;">Trạm của chúng ta hiện tại hoạt động nhờ kho dữ liệu miễn phí. Để tránh tình trạng web bị "sập" vì quá tải thao tác, các COER lưu ý giúp trạm 5 nguyên tắc sau nhé:</p>
+                <ul>
+                    <li><strong>1. KHÔNG F5 (TẢI LẠI TRANG) LIÊN TỤC</strong>Mỗi lần F5 và chọn lại ngôn ngữ là hệ thống sẽ tốn tài nguyên để load và cập nhật câu mới. Hãy cứ để nguyên tab web đó, bấm Copy xong hệ thống sẽ tự nạp sẵn câu mới cho bạn!</li>
+                    <li><strong>2. CHỈ BẤM COPY KHI ĐÃ SẴN SÀNG LÀM BRB</strong>Mỗi cú click "Copy" sẽ khóa vĩnh viễn câu caption đó và trừ thẳng vào kho (tốn lượt Write). Đừng bấm nháp hay bấm chơi chơi test web rùi bỏ đó nha 🥺</li>
+                    <li><strong>3. KHÔNG SPAM ĐỔI ANH - HÀN</strong>Việc ấn qua ấn lại giữa nút cờ Anh và cờ Hàn sẽ bắt hệ thống lục tìm kho dữ liệu liên tục. Hôm nay bạn định đẩy BR tiếng nào, hãy chọn một ngôn ngữ rồi sử dụng ổn định nhé!</li>
+                    <li><strong>4. DÙNG 1 TAB DUY NHẤT</strong>Không mở trạm trên nhiều tab trình duyệt cùng lúc để tiết kiệm tài nguyên!</li>
+                    <li><strong>5. THAO TÁC TỪ TỪ</strong>Mọi người thao tác với tốc độ vừa phải là ổn nhất nha! Web free và vẫn đang trong giai đoạn phát triển nên hơi mong manh dễ vỡ. Mong mọi người đừng bực em nó khi em nó bắt đầu lag lag nha. Có thể ngưng một chút rồi quay lại sau cũng sẽ đảm bảo lượng truy cập được giãn ra nè~</li>
+                </ul>
+                <p style="margin-top: 12px; font-weight: 700; color: #1a6d30; text-align: center;">Cảm ơn các tình yêu đã chăm chỉ BRB cho 5 cục vàng nhỏ! Chúc mọi người làm BRB vui vẻ và hiệu quả ạ~</p>
+            </div>
+            <button class="modal-btn" onclick="closeRulesModal()">Mình Đã Hiểu!</button>
+        </div>
+    </div>
+
+    <!-- ========================================================
+       💔 BẢNG GỢI Ý KHÔI PHỤC CHUỖI (HIỆN NẾU BỊ ĐỨT)
+       ======================================================== -->
+    <div class="custom-modal-overlay" id="recoveryPromptModal">
+        <div class="custom-modal-box" style="max-width: 380px;">
+            <h2 style="color: #d32f2f;">💔 Ôi không, bạn làm đứt chuỗi rồi!</h2>
+            <p style="margin-bottom: 8px; font-size: 15px;">Hệ thống thấy bạn đã vắng mặt <strong id="missedDaysText" style="color:#d32f2f;">0</strong> ngày và đánh mất chuỗi <strong id="frozenStreakText" style="color:#1a6d30;">0</strong> ngày trước đó.</p>
+            <p style="margin-bottom: 12px; font-size: 14.5px;">Nhưng đừng lo! Bạn có thể hồi sinh chuỗi bằng cách <strong>bù caption ngay trong hôm nay</strong> (chỉ được khôi phục trong hôm nay thôi nhé).</p>
+            <div class="recovery-formula">
+                Mục tiêu ít nhất hôm nay của bạn:<br>
+                <span class="highlight" id="targetCapsText">0</span> caption<br>
+                <small>(1 cap tối thiểu cho hôm nay + 2 cap bù/ngày lỡ)</small>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="modal-btn" onclick="closeRecoveryPrompt()">Nhận Thử Thách Bù!</button>
+                <button class="modal-btn-secondary" onclick="declineRecovery()">Không khôi phục, tôi sẽ cày lại chuỗi mới</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================
+       🎉 BẢNG CHÚC MỪNG KHÔI PHỤC THÀNH CÔNG
+       ======================================================== -->
+    <div class="custom-modal-overlay" id="recoverySuccessModal">
+        <div class="custom-modal-box" style="max-width: 380px; border-color: #fedb70;">
+            <div style="font-size: 40px; margin-bottom: 10px;">🎉🌟</div>
+            <h2 style="color: #d88a00;">KHÔI PHỤC THÀNH CÔNG!</h2>
+            <p style="margin-bottom: 10px;">Tuyệt vời! Bạn đã hoàn thành xuất sắc <strong id="successTargetText">0</strong> caption bù của hôm nay.</p>
+            <p>Chuỗi <strong id="successStreakText" style="color: #1a6d30; font-size: 18px;">0</strong> ngày của bạn đã chính thức được hồi sinh! 🍀💚</p>
+            <button class="modal-btn" style="background: #e6a100; box-shadow: 0 4px 0 #b37d00; margin-top: 16px;" onclick="closeRecoverySuccess()">Tuyệt Quá!</button>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCQffOi-hPZ_1IyRJK6I95CV3b8VP5oE8c",

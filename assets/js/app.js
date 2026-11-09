@@ -358,7 +358,18 @@ async function handleCopyClick() {
     showToast('Đã copy! Hãy dán vào X');
 
     const streakData = incrementDailyCounter();
-    if (streakData.isMilestone) {
+    if (streakData.isRecovery) {
+        // Nếu vừa bù xong -> Chờ 0.8s cho hạt tung bay xong thì hiện chúc mừng Khôi Phục
+        setTimeout(() => {
+            document.getElementById('recoverySuccessModal').classList.add('show');
+            try {
+                // Tận dụng luôn tiếng ting ting của chuỗi ngày
+                const audio = document.getElementById('milestoneAudioPlayer');
+                audio.currentTime = 0; audio.play().catch(()=>{});
+            } catch (err) {}
+        }, 800);
+    } else if (streakData.isMilestone) {
+        // Nếu nhận chuỗi bình thường (5, 10...)
         setTimeout(() => {
             showMilestoneModal(streakData.streak);
         }, 800);
@@ -419,52 +430,82 @@ function showToast(msg) {
 }
 
 // ==========================================
-// 4. ADVANCED COUNTER & STREAK SYSTEM
+// 4. ADVANCED COUNTER, STREAK & RECOVERY SYSTEM
 // ==========================================
 const DATE_KEY = 'cloveris_br_date_record';
 const DAILY_COUNT_KEY = 'cloveris_br_count_record';
 const TOTAL_COUNT_KEY = 'cloveris_br_total_count';
 const STREAK_KEY = 'cloveris_br_streak';
 const LAST_STREAK_DATE_KEY = 'cloveris_br_last_streak_date';
-const LANG_COUNT_EN_KEY = 'cloveris_br_lang_en_count';
-const LANG_COUNT_KR_KEY = 'cloveris_br_lang_kr_count';
+const FROZEN_STREAK_KEY = 'cloveris_frozen_streak';
+const MISSED_DAYS_KEY = 'cloveris_missed_days';
 
 function getTodayString() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function isYesterday(dateStr1, dateStr2) {
-    if (!dateStr1 || !dateStr2) return false;
-    const d1 = new Date(dateStr1);
-    const d2 = new Date(dateStr2);
-    d1.setHours(0, 0, 0, 0);
-    d2.setHours(0, 0, 0, 0);
-    const diffTime = Math.abs(d2 - d1);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays === 1;
+// Tính khoảng cách giữa 2 ngày
+function getDiffDays(dateStr1, dateStr2) {
+    if (!dateStr1 || !dateStr2) return 0;
+    const d1 = new Date(dateStr1); d1.setHours(0, 0, 0, 0);
+    const d2 = new Date(dateStr2); d2.setHours(0, 0, 0, 0);
+    return Math.floor((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 function initDailyCounter() {
     const today = getTodayString();
-    const storedDate = localStorage.getItem(DATE_KEY);
-    const lastStreakDate = localStorage.getItem(LAST_STREAK_DATE_KEY);
+    const storedDate = localStorage.getItem(DATE_KEY); // Ngày copy cap cuối cùng
 
     let dailyCount = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0', 10);
     let totalCount = parseInt(localStorage.getItem(TOTAL_COUNT_KEY) || '0', 10);
     let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0', 10);
+    let frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
 
-    if (storedDate !== today) {
+    // KẾT TOÁN CHUỖI KHI SANG NGÀY MỚI
+    if (storedDate && storedDate !== today) {
+        const diff = getDiffDays(storedDate, today);
+
+        if (diff > 1) {
+            // Trường hợp 1: Bỏ lỡ > 1 ngày
+            if (streak > 0) {
+                // Đang có chuỗi -> Đóng băng để cho cơ hội bù
+                frozenStreak = streak;
+                const missedDays = diff - 1;
+                localStorage.setItem(FROZEN_STREAK_KEY, frozenStreak.toString());
+                localStorage.setItem(MISSED_DAYS_KEY, missedDays.toString());
+                streak = 0;
+                localStorage.setItem(STREAK_KEY, '0');
+            } else if (frozenStreak > 0) {
+                // Đã làm đứt từ trước, đang trong kì bù mà lại bỏ lỡ tiếp -> MẤT LUÔN
+                localStorage.removeItem(FROZEN_STREAK_KEY);
+                localStorage.removeItem(MISSED_DAYS_KEY);
+                frozenStreak = 0;
+            }
+        } else if (diff === 1) {
+            // Trường hợp 2: Sang ngày kế tiếp
+            // Nếu hôm qua làm đứt chuỗi (streak = 0) và được cấp quyền bù (frozen > 0)
+            // nhưng hôm qua KHÔNG bù đủ mục tiêu -> Xóa cơ hội bù.
+            if (frozenStreak > 0 && streak === 0) {
+                localStorage.removeItem(FROZEN_STREAK_KEY);
+                localStorage.removeItem(MISSED_DAYS_KEY);
+                frozenStreak = 0;
+            }
+        }
+
         dailyCount = 0;
-    }
-    if (lastStreakDate && lastStreakDate !== today && !isYesterday(lastStreakDate, today)) {
-        streak = 0;
-        localStorage.setItem(STREAK_KEY, '0');
     }
 
     copyCounterEl.innerText = dailyCount;
     document.getElementById('totalCount').innerText = totalCount;
     document.getElementById('streakCount').innerText = streak;
+
+    // HIỂN THỊ BẢNG THÔNG BÁO LUẬT & KHÔI PHỤC (Chỉ 1 lần mỗi phiên mở web)
+    if (!sessionStorage.getItem('rules_shown')) {
+        document.getElementById('rulesModal').classList.add('show');
+    } else {
+        checkAndShowRecoveryPrompt();
+    }
 }
 
 function incrementDailyCounter() {
@@ -475,6 +516,8 @@ function incrementDailyCounter() {
     let dailyCount = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0', 10);
     let totalCount = parseInt(localStorage.getItem(TOTAL_COUNT_KEY) || '0', 10);
     let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0', 10);
+    let frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
+    let missedDays = parseInt(localStorage.getItem(MISSED_DAYS_KEY) || '0', 10);
 
     totalCount++;
     localStorage.setItem(TOTAL_COUNT_KEY, totalCount.toString());
@@ -490,25 +533,106 @@ function incrementDailyCounter() {
     copyCounterEl.innerText = dailyCount;
 
     let justHitMilestone = false;
-    if (lastStreakDate !== today) {
-        if (!lastStreakDate || isYesterday(lastStreakDate, today)) streak++;
-        else streak = 1;
+    let justRecovered = false;
 
-        localStorage.setItem(STREAK_KEY, streak.toString());
-        localStorage.setItem(LAST_STREAK_DATE_KEY, today);
-        document.getElementById('streakCount').innerText = streak;
+    // LOGIC CỘNG CHUỖI / BÙ CHUỖI
+    if (frozenStreak > 0) {
+        // Chế độ khôi phục: (Ngày lỡ x 2) + 1 cap cơ bản
+        const requiredCaps = (missedDays * 2) + 1;
+        if (dailyCount >= requiredCaps) {
+            // ĐÃ BÙ ĐỦ! Khôi phục chuỗi gốc + 1 ngày hôm nay
+            streak = frozenStreak + 1;
+            localStorage.setItem(STREAK_KEY, streak.toString());
+            localStorage.setItem(LAST_STREAK_DATE_KEY, today);
+            document.getElementById('streakCount').innerText = streak;
 
-        if (streak > 0 && streak % 5 === 0) justHitMilestone = true;
+            // Xóa sổ nợ
+            localStorage.removeItem(FROZEN_STREAK_KEY);
+            localStorage.removeItem(MISSED_DAYS_KEY);
+            frozenStreak = 0;
+            missedDays = 0;
+
+            justRecovered = true;
+            document.getElementById('successTargetText').innerText = requiredCaps;
+            document.getElementById('successStreakText').innerText = streak;
+        } else {
+            // Đang bù, chuỗi hiện tại trên UI vẫn là 0
+            localStorage.setItem(LAST_STREAK_DATE_KEY, today);
+        }
+    } else {
+        // Chế độ bình thường
+        if (lastStreakDate !== today) {
+            if (!lastStreakDate || getDiffDays(lastStreakDate, today) === 1) streak++;
+            else streak = 1;
+
+            localStorage.setItem(STREAK_KEY, streak.toString());
+            localStorage.setItem(LAST_STREAK_DATE_KEY, today);
+            document.getElementById('streakCount').innerText = streak;
+
+            if (streak > 0 && streak % 5 === 0) justHitMilestone = true;
+        }
     }
 
-    return { streak: streak, isMilestone: justHitMilestone };
+    return { streak: streak, isMilestone: justHitMilestone, isRecovery: justRecovered };
+}
+
+// ---------------------------------------------
+// ĐIỀU KHIỂN CÁC BẢNG THÔNG BÁO (MODALS)
+// ---------------------------------------------
+function closeRulesModal() {
+    document.getElementById('rulesModal').classList.remove('show');
+    sessionStorage.setItem('rules_shown', 'true');
+    checkAndShowRecoveryPrompt(); // Đóng luật xong thì kiểm tra xem có nợ chuỗi không
+}
+
+function checkAndShowRecoveryPrompt() {
+    const frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
+    const missedDays = parseInt(localStorage.getItem(MISSED_DAYS_KEY) || '0', 10);
+    const lastPromptDate = sessionStorage.getItem('recovery_prompted'); 
+
+    // Chỉ hiện gợi ý 1 lần mỗi lần mở trình duyệt để không gây phiền
+    if (frozenStreak > 0 && !lastPromptDate) {
+        const targetCaps = (missedDays * 2) + 1;
+        document.getElementById('missedDaysText').innerText = missedDays;
+        document.getElementById('frozenStreakText').innerText = frozenStreak;
+        document.getElementById('targetCapsText').innerText = targetCaps;
+        
+        document.getElementById('recoveryPromptModal').classList.add('show');
+        sessionStorage.setItem('recovery_prompted', 'true');
+    }
+}
+
+function closeRecoveryPrompt() {
+    // 1. Đóng bảng gợi ý khôi phục
+    document.getElementById('recoveryPromptModal').classList.remove('show');
+    
+    // 2. Đợi 0.4s cho bảng cũ đóng lại mượt mà, sau đó hiện thông báo nhắc nhở
+    setTimeout(() => {
+        alert("🍀 LỜI NHẮN TỪ TRẠM:\n\nĐừng vì nôn nóng khôi phục chuỗi mà chỉ bấm Copy cho đủ số lượng rồi bỏ đó nha 🥺\n\nCác COER hãy nhớ dán qua X và đăng bài đàng hoàng cách nhau ít nhất 10 phút để giúp CORTIS tăng Brand Reputation thật sự nhé! Cố lên! 💚");
+    }, 400);
+}
+
+// HÀM MỚI: Hủy bỏ khôi phục chuỗi
+function declineRecovery() {
+    // Xóa cơ hội bù trong bộ nhớ
+    localStorage.removeItem(FROZEN_STREAK_KEY);
+    localStorage.removeItem(MISSED_DAYS_KEY);
+    
+    // Đóng bảng
+    document.getElementById('recoveryPromptModal').classList.remove('show');
+    
+    // Hiện thông báo nhỏ
+    showToast("Đã hủy khôi phục. Cùng cày lại từ đầu nhé!");
+}
+
+function closeRecoverySuccess() {
+    document.getElementById('recoverySuccessModal').classList.remove('show');
 }
 
 function showMilestoneModal(streakNum) {
     document.getElementById('milestoneNumber').innerText = streakNum;
     const modal = document.getElementById('milestoneModal');
     modal.classList.add('show');
-
     try {
         const audio = document.getElementById('milestoneAudioPlayer');
         audio.currentTime = 0;
@@ -517,8 +641,7 @@ function showMilestoneModal(streakNum) {
 }
 
 function closeMilestoneModal() {
-    const modal = document.getElementById('milestoneModal');
-    modal.classList.remove('show');
+    document.getElementById('milestoneModal').classList.remove('show');
     try {
         document.getElementById('milestoneAudioPlayer').pause();
     } catch (err) {}
