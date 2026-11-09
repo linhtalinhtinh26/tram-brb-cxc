@@ -363,7 +363,7 @@ async function handleCopyClick() {
     }, 1000);
 
     burstAnimalEmojis();
-    showToast('Đã copy! Vui lòng qua X đăng ngay. Trạm có giới hạn tài nguyên, xin đừng copy rồi bỏ đó!');
+    showToast('Đã copy! Vui lòng qua X ngay!! Trạm có giới hạn tài nguyên, xin đừng copy rồi bỏ đó (gõ cửa từng nhà đấy)!');
 
     const streakData = incrementDailyCounter();
     if (streakData.isRecovery) {
