@@ -50,6 +50,7 @@ let currentCaptionText = "";
 let currentCaptionRef = null;
 let currentCaptionLang = null;
 let isCopying = false;
+let isLoadingCaption = false; // Tối ưu: Khóa cờ ngôn ngữ khi đang tải
 
 // Lưu trữ danh sách caption đã xáo trộn ngẫu nhiên
 let shuffledCaptions = { en: [], kr: [] };
@@ -73,7 +74,7 @@ const speechTextEl = document.getElementById('speechText');
 // ==========================================
 
 function setLanguage(lang) {
-    if (currentLang === lang) return;
+    if (currentLang === lang || isLoadingCaption) return; // Tối ưu: Bỏ qua nếu đang tải
     currentLang = lang;
 
     document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
@@ -131,8 +132,9 @@ async function checkStock(lang) {
 // Điều hướng hiển thị Caption và bắt lỗi truy vấn
 async function pickRandomOtherCaption(animate = true, prefetch = null) {
     if (!currentLang) return;
-
+    isLoadingCaption = true; // Tối ưu: Bắt đầu tải khóa nút
     currentCaptionRef = null;
+    
     const requestLang = currentLang;
     const usePrefetch = prefetch && prefetch.lang === requestLang;
 
@@ -147,7 +149,10 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
         const picked = usePrefetch ? await prefetch.promise : await fetchNextUniqueCaption(requestLang);
 
         // Hủy render nếu user chuyển ngôn ngữ giữa chừng
-        if (requestLang !== currentLang) return;
+        if (requestLang !== currentLang) {
+            isLoadingCaption = false;
+            return;
+        }
 
         if (!picked) {
             const otherLang = currentLang === 'en' ? 'kr' : 'en';
@@ -165,6 +170,7 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
             currentCaptionText = "";
             captionHashtagsEl.innerText = "";
             if (copyBtn) copyBtn.style.display = 'none';
+            isLoadingCaption = false;
             return;
         }
         captionTextEl.classList.remove('out-of-stock');
@@ -186,6 +192,7 @@ async function pickRandomOtherCaption(animate = true, prefetch = null) {
         console.error("Caption Load Error:", error);
     } finally {
         isCopying = false;
+        isLoadingCaption = false; // Tối ưu: Mở khóa
     }
 }
 
@@ -280,15 +287,16 @@ function updateScallopFrame() {
     }
 }
 
-let scallopRaf = null;
+// Tối ưu Throttle giới hạn tần suất vẽ lại thẻ mây trên thiết bị di động
+let scallopResizeTimer;
 function scheduleScallopUpdate() {
-    if (scallopRaf) return;
-    scallopRaf = requestAnimationFrame(() => {
-        scallopRaf = null;
-        updateScallopFrame();
-    });
+    if (!scallopResizeTimer) {
+        scallopResizeTimer = setTimeout(() => {
+            scallopResizeTimer = null;
+            requestAnimationFrame(updateScallopFrame);
+        }, 100); 
+    }
 }
-
 window.addEventListener('resize', scheduleScallopUpdate);
 
 // ==========================================
@@ -359,17 +367,14 @@ async function handleCopyClick() {
 
     const streakData = incrementDailyCounter();
     if (streakData.isRecovery) {
-        // Nếu vừa bù xong -> Chờ 0.8s cho hạt tung bay xong thì hiện chúc mừng Khôi Phục
         setTimeout(() => {
             document.getElementById('recoverySuccessModal').classList.add('show');
             try {
-                // Tận dụng luôn tiếng ting ting của chuỗi ngày
                 const audio = document.getElementById('milestoneAudioPlayer');
                 audio.currentTime = 0; audio.play().catch(()=>{});
             } catch (err) {}
         }, 800);
     } else if (streakData.isMilestone) {
-        // Nếu nhận chuỗi bình thường (5, 10...)
         setTimeout(() => {
             showMilestoneModal(streakData.streak);
         }, 800);
@@ -445,7 +450,6 @@ function getTodayString() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Tính khoảng cách giữa 2 ngày
 function getDiffDays(dateStr1, dateStr2) {
     if (!dateStr1 || !dateStr2) return 0;
     const d1 = new Date(dateStr1); d1.setHours(0, 0, 0, 0);
@@ -455,21 +459,18 @@ function getDiffDays(dateStr1, dateStr2) {
 
 function initDailyCounter() {
     const today = getTodayString();
-    const storedDate = localStorage.getItem(DATE_KEY); // Ngày copy cap cuối cùng
+    const storedDate = localStorage.getItem(DATE_KEY); 
 
     let dailyCount = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0', 10);
     let totalCount = parseInt(localStorage.getItem(TOTAL_COUNT_KEY) || '0', 10);
     let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0', 10);
     let frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
 
-    // KẾT TOÁN CHUỖI KHI SANG NGÀY MỚI
     if (storedDate && storedDate !== today) {
         const diff = getDiffDays(storedDate, today);
 
         if (diff > 1) {
-            // Trường hợp 1: Bỏ lỡ > 1 ngày
             if (streak > 0) {
-                // Đang có chuỗi -> Đóng băng để cho cơ hội bù
                 frozenStreak = streak;
                 const missedDays = diff - 1;
                 localStorage.setItem(FROZEN_STREAK_KEY, frozenStreak.toString());
@@ -477,15 +478,11 @@ function initDailyCounter() {
                 streak = 0;
                 localStorage.setItem(STREAK_KEY, '0');
             } else if (frozenStreak > 0) {
-                // Đã làm đứt từ trước, đang trong kì bù mà lại bỏ lỡ tiếp -> MẤT LUÔN
                 localStorage.removeItem(FROZEN_STREAK_KEY);
                 localStorage.removeItem(MISSED_DAYS_KEY);
                 frozenStreak = 0;
             }
         } else if (diff === 1) {
-            // Trường hợp 2: Sang ngày kế tiếp
-            // Nếu hôm qua làm đứt chuỗi (streak = 0) và được cấp quyền bù (frozen > 0)
-            // nhưng hôm qua KHÔNG bù đủ mục tiêu -> Xóa cơ hội bù.
             if (frozenStreak > 0 && streak === 0) {
                 localStorage.removeItem(FROZEN_STREAK_KEY);
                 localStorage.removeItem(MISSED_DAYS_KEY);
@@ -500,7 +497,6 @@ function initDailyCounter() {
     document.getElementById('totalCount').innerText = totalCount;
     document.getElementById('streakCount').innerText = streak;
 
-    // HIỂN THỊ BẢNG THÔNG BÁO LUẬT & KHÔI PHỤC (Chỉ 1 lần mỗi phiên mở web)
     if (!sessionStorage.getItem('rules_shown')) {
         document.getElementById('rulesModal').classList.add('show');
     } else {
@@ -535,18 +531,14 @@ function incrementDailyCounter() {
     let justHitMilestone = false;
     let justRecovered = false;
 
-    // LOGIC CỘNG CHUỖI / BÙ CHUỖI
     if (frozenStreak > 0) {
-        // Chế độ khôi phục: (Ngày lỡ x 2) + 1 cap cơ bản
         const requiredCaps = (missedDays * 2) + 1;
         if (dailyCount >= requiredCaps) {
-            // ĐÃ BÙ ĐỦ! Khôi phục chuỗi gốc + 1 ngày hôm nay
             streak = frozenStreak + 1;
             localStorage.setItem(STREAK_KEY, streak.toString());
             localStorage.setItem(LAST_STREAK_DATE_KEY, today);
             document.getElementById('streakCount').innerText = streak;
 
-            // Xóa sổ nợ
             localStorage.removeItem(FROZEN_STREAK_KEY);
             localStorage.removeItem(MISSED_DAYS_KEY);
             frozenStreak = 0;
@@ -556,11 +548,9 @@ function incrementDailyCounter() {
             document.getElementById('successTargetText').innerText = requiredCaps;
             document.getElementById('successStreakText').innerText = streak;
         } else {
-            // Đang bù, chuỗi hiện tại trên UI vẫn là 0
             localStorage.setItem(LAST_STREAK_DATE_KEY, today);
         }
     } else {
-        // Chế độ bình thường
         if (lastStreakDate !== today) {
             if (!lastStreakDate || getDiffDays(lastStreakDate, today) === 1) streak++;
             else streak = 1;
@@ -582,7 +572,7 @@ function incrementDailyCounter() {
 function closeRulesModal() {
     document.getElementById('rulesModal').classList.remove('show');
     sessionStorage.setItem('rules_shown', 'true');
-    checkAndShowRecoveryPrompt(); // Đóng luật xong thì kiểm tra xem có nợ chuỗi không
+    checkAndShowRecoveryPrompt(); 
 }
 
 function checkAndShowRecoveryPrompt() {
@@ -590,7 +580,6 @@ function checkAndShowRecoveryPrompt() {
     const missedDays = parseInt(localStorage.getItem(MISSED_DAYS_KEY) || '0', 10);
     const lastPromptDate = sessionStorage.getItem('recovery_prompted'); 
 
-    // Chỉ hiện gợi ý 1 lần mỗi lần mở trình duyệt để không gây phiền
     if (frozenStreak > 0 && !lastPromptDate) {
         const targetCaps = (missedDays * 2) + 1;
         document.getElementById('missedDaysText').innerText = missedDays;
@@ -603,25 +592,19 @@ function checkAndShowRecoveryPrompt() {
 }
 
 function closeRecoveryPrompt() {
-    // 1. Đóng bảng gợi ý khôi phục
     document.getElementById('recoveryPromptModal').classList.remove('show');
     
-    // 2. Đợi 0.4s cho bảng cũ đóng lại mượt mà, sau đó hiện thông báo nhắc nhở
     setTimeout(() => {
         alert("🍀 LỜI NHẮN TỪ TRẠM:\n\nĐừng vì nôn nóng khôi phục chuỗi mà chỉ bấm Copy cho đủ số lượng rồi bỏ đó nha 🥺\n\nCác COER hãy nhớ dán qua X và đăng bài đàng hoàng cách nhau ít nhất 10 phút để giúp CORTIS tăng Brand Reputation thật sự nhé! Cố lên! 💚");
     }, 400);
 }
 
-// HÀM MỚI: Hủy bỏ khôi phục chuỗi
 function declineRecovery() {
-    // Xóa cơ hội bù trong bộ nhớ
     localStorage.removeItem(FROZEN_STREAK_KEY);
     localStorage.removeItem(MISSED_DAYS_KEY);
     
-    // Đóng bảng
     document.getElementById('recoveryPromptModal').classList.remove('show');
     
-    // Hiện thông báo nhỏ
     showToast("Đã hủy khôi phục. Cùng cày lại từ đầu nhé!");
 }
 
@@ -728,7 +711,6 @@ function playPoyoiyoiSound(retry = 0) {
         
         if (playPromise !== undefined) {
             playPromise.catch(err => {
-                // Bỏ qua lỗi trình duyệt chủ động block (NotAllowed) hoặc ngắt quãng (Abort)
                 if (err.name === 'AbortError' || err.name === 'NotAllowedError') return;
                 skipToNext(err.name);
             });
@@ -802,7 +784,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fitRaf = requestAnimationFrame(() => { fitRaf = null; fitTitleLines(); });
     });
 
-    // Ưu tiên nạp trước audio khi browser ở trạng thái Idle
     if ('requestIdleCallback' in window) {
         requestIdleCallback(prefetchNextPoyoiyoiAudio, { timeout: 4000 });
     } else {
@@ -818,7 +799,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Calculate inline scaling to prevent text overflow
 function fitTitleLines() {
     const banner = document.querySelector('.title-banner');
     if (!banner) return;
@@ -849,7 +829,6 @@ function fitTitleLines() {
 
 // ==========================================
 // 🤫 TÍNH NĂNG BÍ MẬT: KHÔI PHỤC CHUỖI CHO NGƯỜI CŨ
-// (Bấm 5 lần vào tiêu đề để gọi hộp thoại)
 // ==========================================
 let secretClickCount = 0;
 let secretClickTimer = null;
@@ -859,30 +838,39 @@ if (titleBannerEl) {
     titleBannerEl.addEventListener('click', () => {
         secretClickCount++;
         
-        // Nếu ngưng bấm quá 1.5 giây thì reset bộ đếm
         if (secretClickTimer) clearTimeout(secretClickTimer);
         secretClickTimer = setTimeout(() => {
             secretClickCount = 0;
         }, 1500);
 
-        // Đạt đủ 5 lần bấm nhanh liên tiếp
         if (secretClickCount === 5) {
-            secretClickCount = 0; // Reset lại
+            secretClickCount = 0; 
             
-            // Hiện hộp thoại nhập số (dùng hàm prompt mặc định của trình duyệt)
-            const oldStreak = prompt("🍀 TRẠM BÍ MẬT CHO COER:\n\nVì bạn đã vào web trước khi hệ thống mới update cho phép bạn khôi phục chuỗi nên hãy nhập lại số chuỗi mà bạn đã cày được trước đó vào đây sau đó bù chuỗi khôi phục theo quy tắc [1 cap tối thiểu cho hôm nay + 2 cap bù/ngày lỡ] nhé (Mọi người tự giác trung thực nha):");
+            // Ô nhập thứ 1: Số chuỗi đã giữ
+            const oldStreak = prompt("🍀 TRẠM BÍ MẬT CHO COER:\n\n[BƯỚC 1/2]\nVì bạn đã vào web trước khi hệ thống update nên hãy khai báo lại SỐ CHUỖI BẠN ĐÃ GIỮ được trước đó (Mọi người tự giác trung thực nha):");
             
-            // Nếu người dùng có nhập số hợp lệ
             if (oldStreak && !isNaN(oldStreak) && parseInt(oldStreak) > 0) {
-                // Giả lập họ lỡ 1 ngày (để tạo mục tiêu bù nhẹ nhàng: 1 ngày lỡ x 2 + 1 = 3 cap)
-                localStorage.setItem('cloveris_frozen_streak', parseInt(oldStreak).toString());
-                localStorage.setItem('cloveris_missed_days', "1"); 
                 
-                // Mở khóa bảng thông báo (xóa cờ đã hiển thị đi)
-                sessionStorage.removeItem('recovery_prompted');
+                // Ô nhập thứ 2: Số ngày đã bỏ lỡ
+                const missedDays = prompt(`🍀 TRẠM BÍ MẬT CHO COER:\n\n[BƯỚC 2/2]\nBạn đã giữ được chuỗi ${oldStreak} ngày.\nTiếp theo, hãy nhập SỐ NGÀY BẠN ĐÃ BỎ LỠ (Hệ thống sẽ tính số caption cần bù dựa trên số ngày này):`);
                 
-                // Gọi bảng thử thách khôi phục ra
-                checkAndShowRecoveryPrompt();
+                if (missedDays && !isNaN(missedDays) && parseInt(missedDays) > 0) {
+                    
+                    // Ghi đè số liệu người dùng vừa nhập vào bộ nhớ máy
+                    localStorage.setItem('cloveris_frozen_streak', parseInt(oldStreak).toString());
+                    localStorage.setItem('cloveris_missed_days', parseInt(missedDays).toString()); 
+                    
+                    // Xóa cờ báo đã hiện bảng để ép bảng khôi phục bật lên lại
+                    sessionStorage.removeItem('recovery_prompted');
+                    
+                    // Gọi bảng thử thách khôi phục ra (công thức tính tự động ăn theo số missedDays)
+                    checkAndShowRecoveryPrompt();
+                    
+                } else if (missedDays !== null) {
+                    alert("❌ Số ngày bỏ lỡ không hợp lệ, thao tác đã bị hủy. Bạn hãy bấm 5 lần để thử lại nhé!");
+                }
+            } else if (oldStreak !== null) {
+                alert("❌ Số chuỗi không hợp lệ, thao tác đã bị hủy. Bạn hãy bấm 5 lần để thử lại nhé!");
             }
         }
     });

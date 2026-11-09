@@ -250,8 +250,10 @@ body {
     stroke-linecap: round;
 }
 
-.title-banner:hover .title-text {
-    transform: scale(1.03);
+@media (hover: hover) {
+    .title-banner:hover .title-text {
+        transform: scale(1.03);
+    }
 }
 
 .title-sub {
@@ -378,11 +380,13 @@ body {
     margin-top: 2px;
 }
 
-.lang-btn:hover {
-    background: #ffffff;
-    border-color: var(--clover-mid);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(45, 122, 70, 0.15);
+@media (hover: hover) {
+    .lang-btn:hover {
+        background: #ffffff;
+        border-color: var(--clover-mid);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(45, 122, 70, 0.15);
+    }
 }
 
 .lang-btn:active {
@@ -671,13 +675,15 @@ body {
     overflow: visible;
 }
 
-.main-copy-btn:hover {
-    transform: translateY(-2px);
-    background: #328c4c;
-    box-shadow:
-        0 8px 0 #143b20,
-        0 12px 22px rgba(27, 77, 39, 0.35),
-        inset 0 3px 2px rgba(255, 255, 255, 0.4);
+@media (hover: hover) {
+    .main-copy-btn:hover {
+        transform: translateY(-2px);
+        background: #328c4c;
+        box-shadow:
+            0 8px 0 #143b20,
+            0 12px 22px rgba(27, 77, 39, 0.35),
+            inset 0 3px 2px rgba(255, 255, 255, 0.4);
+    }
 }
 
 .main-copy-btn:active {
@@ -822,8 +828,10 @@ body {
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
 }
 
-.poyoiyoi-btn:hover {
-    transform: scale(1.08) rotate(-4deg);
+@media (hover: hover) {
+    .poyoiyoi-btn:hover {
+        transform: scale(1.08) rotate(-4deg);
+    }
 }
 
 .poyoiyoi-btn:active {
@@ -856,9 +864,11 @@ body {
     transition: all 0.25s ease;
 }
 
-.speech-bubble:hover {
-    border-color: #f7c942;
-    transform: translateY(-2px);
+@media (hover: hover) {
+    .speech-bubble:hover {
+        border-color: #f7c942;
+        transform: translateY(-2px);
+    }
 }
 
 .speech-bubble::before {
@@ -1039,10 +1049,12 @@ body {
     transition: all 0.25s ease;
 }
 
-.author-credit a:hover {
-    color: #0f451e;
-    text-decoration: underline wavy #73c886;
-    text-underline-offset: 4px;
+@media (hover: hover) {
+    .author-credit a:hover {
+        color: #0f451e;
+        text-decoration: underline wavy #73c886;
+        text-underline-offset: 4px;
+    }
 }
 
 /* ========================================================
@@ -1151,11 +1163,13 @@ body {
     transition: all 0.2s;
 }
 
-.close-modal-btn:hover {
-    background: #ffb8cf;
-    border-color: #ea8fb1;
-    color: white;
-    transform: rotate(90deg);
+@media (hover: hover) {
+    .close-modal-btn:hover {
+        background: #ffb8cf;
+        border-color: #ea8fb1;
+        color: white;
+        transform: rotate(90deg);
+    }
 }
 
 .milestone-mascot {
@@ -1291,14 +1305,16 @@ body {
     transition: transform 0.18s ease;
 }
 
-.x-link-btn:hover {
-    background: #f4f4f4;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 0 #1d1d1f;
-}
+@media (hover: hover) {
+    .x-link-btn:hover {
+        background: #f4f4f4;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 0 #1d1d1f;
+    }
 
-.x-link-btn:hover .x-link-arrow {
-    transform: translate(2px, -2px);
+    .x-link-btn:hover .x-link-arrow {
+        transform: translate(2px, -2px);
+    }
 }
 
 .x-link-btn:active {
@@ -1390,6 +1406,9 @@ body {
     text-decoration: underline;
     transition: color 0.2s;
 }
-.modal-btn-secondary:hover {
-    color: #1a6d30;
+
+@media (hover: hover) {
+    .modal-btn-secondary:hover {
+        color: #1a6d30;
+    }
 }
