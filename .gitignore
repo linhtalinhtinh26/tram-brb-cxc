@@ -20,3 +20,6 @@ Thumbs.db
 
 # 5. File quản trị, kiểm soát số caption còn lại
 admin.html
+
+# 6. Kho caption đã upload lên Firebase
+uploaded_captions.json
