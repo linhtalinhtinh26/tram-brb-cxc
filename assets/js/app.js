@@ -623,15 +623,20 @@ function showMilestoneModal(streakNum) {
     try {
         const audio = document.getElementById('milestoneAudioPlayer');
         
-        let currentIndex = parseInt(localStorage.getItem(STREAK_INDEX_KEY) || '0', 10);
+        // 1. Ép lấy chuẩn file âm thanh theo con số streakNum truyền vào
+        // Mốc 5  -> (5 / 5) - 1  = 0 -> streak_1.mp3
+        // Mốc 10 -> (10 / 5) - 1 = 1 -> streak_2.mp3
+        const milestoneIndex = Math.floor(streakNum / 5) - 1;
+        const audioIndex = Math.max(0, milestoneIndex) % streakAudioFiles.length;
         
-        audio.src = streakAudioFiles[currentIndex % streakAudioFiles.length];
+        // 2. Cập nhật đường dẫn file và bắt buộc nạp lại âm thanh mới
+        audio.src = streakAudioFiles[audioIndex];
+        audio.load(); 
         audio.currentTime = 0;
         audio.play().catch(() => {});
-        
-        currentIndex++;
-        localStorage.setItem(STREAK_INDEX_KEY, currentIndex.toString());
-    } catch (err) {}
+    } catch (err) {
+        console.error("Lỗi audio cột mốc:", err);
+    }
 }
 
 function closeMilestoneModal() {
