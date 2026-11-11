@@ -22,4 +22,4 @@ Thumbs.db
 admin.html
 
 # 6. Kho caption đã upload lên Firebase
-uploaded_captions.json
+/upload_captions.html

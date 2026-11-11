@@ -839,7 +839,8 @@ function fitTitleLines() {
 }
 
 // ==========================================
-// 🤫 TÍNH NĂNG BÍ MẬT: KHÔI PHỤC CHUỖI CHO NGƯỜI CŨ
+// 🤫 TẠM THỜI HÔM NAY: NGHE LẠI SOUND MỐC 10 (DÀNH CHO CHUỖI 10, 11...)
+// (Xóa đoạn này sau khi dùng xong)
 // ==========================================
 let secretClickCount = 0;
 let secretClickTimer = null;
@@ -857,32 +858,18 @@ if (titleBannerEl) {
         if (secretClickCount === 5) {
             secretClickCount = 0; 
             
-            // Ô nhập thứ 1: Số chuỗi đã giữ
-            const oldStreak = prompt("🍀 TRẠM BÍ MẬT CHO COER:\n\n[BƯỚC 1/2]\nVì bạn đã vào web trước khi hệ thống update nên hãy khai báo lại SỐ CHUỖI BẠN ĐÃ GIỮ được trước đó (Mọi người tự giác trung thực nha):");
+            // Đọc chuỗi thực tế của người dùng
+            const currentStreak = parseInt(localStorage.getItem('cloveris_br_streak') || '0', 10);
             
-            if (oldStreak && !isNaN(oldStreak) && parseInt(oldStreak) > 0) {
-                
-                // Ô nhập thứ 2: Số ngày đã bỏ lỡ
-                const missedDays = prompt(`🍀 TRẠM BÍ MẬT CHO COER:\n\n[BƯỚC 2/2]\nBạn đã giữ được chuỗi ${oldStreak} ngày.\nTiếp theo, hãy nhập SỐ NGÀY BẠN ĐÃ BỎ LỠ (Hệ thống sẽ tính số caption cần bù dựa trên số ngày này):`);
-                
-                if (missedDays && !isNaN(missedDays) && parseInt(missedDays) > 0) {
-                    
-                    // Ghi đè số liệu người dùng vừa nhập vào bộ nhớ máy
-                    localStorage.setItem('cloveris_frozen_streak', parseInt(oldStreak).toString());
-                    localStorage.setItem('cloveris_missed_days', parseInt(missedDays).toString()); 
-                    
-                    // Xóa cờ báo đã hiện bảng để ép bảng khôi phục bật lên lại
-                    sessionStorage.removeItem('recovery_prompted');
-                    
-                    // Gọi bảng thử thách khôi phục ra (công thức tính tự động ăn theo số missedDays)
-                    checkAndShowRecoveryPrompt();
-                    
-                } else if (missedDays !== null) {
-                    alert("❌ Số ngày bỏ lỡ không hợp lệ, thao tác đã bị hủy. Bạn hãy bấm 5 lần để thử lại nhé!");
-                }
-            } else if (oldStreak !== null) {
-                alert("❌ Số chuỗi không hợp lệ, thao tác đã bị hủy. Bạn hãy bấm 5 lần để thử lại nhé!");
+            // Áp dụng cho cả người đang giữ chuỗi 10, 11 hoặc cao hơn
+            if (currentStreak < 10) {
+                alert("❌ Tính năng nghe lại sound này chỉ dành riêng cho các COER đã thực sự đạt Chuỗi 10 trở lên nhưng bị lỡ âm thanh hôm qua nha! Hãy tiếp tục cày chuỗi nhé 🍀");
+                return;
             }
+
+            // Bật thẳng bảng Milestone Ngày 10 và phát âm thanh streak_2.mp3
+            // KHÔNG làm thay đổi số chuỗi hay tốn lượt copy Firebase của người dùng!
+            showMilestoneModal(10);
         }
     });
 }
