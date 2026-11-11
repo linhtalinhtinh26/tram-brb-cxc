@@ -623,13 +623,9 @@ function showMilestoneModal(streakNum) {
     try {
         const audio = document.getElementById('milestoneAudioPlayer');
         
-        // 1. Ép lấy chuẩn file âm thanh theo con số streakNum truyền vào
-        // Mốc 5  -> (5 / 5) - 1  = 0 -> streak_1.mp3
-        // Mốc 10 -> (10 / 5) - 1 = 1 -> streak_2.mp3
         const milestoneIndex = Math.floor(streakNum / 5) - 1;
         const audioIndex = Math.max(0, milestoneIndex) % streakAudioFiles.length;
         
-        // 2. Cập nhật đường dẫn file và bắt buộc nạp lại âm thanh mới
         audio.src = streakAudioFiles[audioIndex];
         audio.load(); 
         audio.currentTime = 0;
