@@ -840,37 +840,38 @@ function fitTitleLines() {
 }
 
 // ==========================================
-// 🤫 TẠM THỜI HÔM NAY: NGHE LẠI SOUND MỐC 10 (DÀNH CHO CHUỖI 10, 11...)
-// (Xóa đoạn này sau khi dùng xong)
+// 🍀 TÍNH NĂNG: NGHE LẠI SOUND MỐC GẦN NHẤT (CLICK 5 LẦN VÀO TIÊU ĐỀ)
 // ==========================================
-let secretClickCount = 0;
-let secretClickTimer = null;
+let titleClickCount = 0;
+let titleClickTimer = null;
 
 const titleBannerEl = document.querySelector('.title-banner');
 if (titleBannerEl) {
     titleBannerEl.addEventListener('click', () => {
-        secretClickCount++;
+        titleClickCount++;
         
-        if (secretClickTimer) clearTimeout(secretClickTimer);
-        secretClickTimer = setTimeout(() => {
-            secretClickCount = 0;
+        if (titleClickTimer) clearTimeout(titleClickTimer);
+        titleClickTimer = setTimeout(() => {
+            titleClickCount = 0;
         }, 1500);
 
-        if (secretClickCount === 5) {
-            secretClickCount = 0; 
+        if (titleClickCount === 5) {
+            titleClickCount = 0; 
             
-            // Đọc chuỗi thực tế của người dùng
+            // 1. Đọc số chuỗi thực tế
             const currentStreak = parseInt(localStorage.getItem('cloveris_br_streak') || '0', 10);
             
-            // Áp dụng cho cả người đang giữ chuỗi 10, 11 hoặc cao hơn
-            if (currentStreak < 10) {
-                alert("❌ Tính năng nghe lại sound này chỉ dành riêng cho các COER đã thực sự đạt Chuỗi 10 trở lên nhưng bị lỡ âm thanh hôm qua nha! Hãy tiếp tục cày chuỗi nhé 🍀");
+            // 2. Chưa đạt mốc 5 ngày nào -> Không phát sound
+            if (currentStreak < 5) {
+                showToast("🍀 Bạn cần đạt mốc tối thiểu 5 ngày để nghe lại sound kỷ niệm nhé!");
                 return;
             }
 
-            // Bật thẳng bảng Milestone Ngày 10 và phát âm thanh streak_2.mp3
-            // KHÔNG làm thay đổi số chuỗi hay tốn lượt copy Firebase của người dùng!
-            showMilestoneModal(10);
+            // 3. Ép lấy đúng mốc 5 ngày gần nhất đã vượt qua
+            const lastReachedMilestone = Math.floor(currentStreak / 5) * 5;
+
+            // 4. Phát duy nhất sound của mốc đó
+            showMilestoneModal(lastReachedMilestone);
         }
     });
 }
