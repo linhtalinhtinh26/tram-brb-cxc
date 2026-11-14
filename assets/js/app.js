@@ -616,29 +616,135 @@ const streakAudioFiles = [
 ];
 const STREAK_INDEX_KEY = 'cloveris_streak_audio_index';
 
-function showMilestoneModal(streakNum) {
-    document.getElementById('milestoneNumber').innerText = streakNum;
-    const modal = document.getElementById('milestoneModal');
-    modal.classList.add('show');
+let currentModalStreak = 0;
+let mascotTapCount = 0;
+let mascotTapStep = 0;
+let isMilestoneAudioPlaying = false;
+
+// Phát 1 file âm thanh và khóa đếm tap cho tới khi phát xong
+function playSingleMilestoneAudio(audioUrl) {
+    const audio = document.getElementById('milestoneAudioPlayer');
+    if (!audio || !audioUrl) return;
+
     try {
-        const audio = document.getElementById('milestoneAudioPlayer');
-        
-        const milestoneIndex = Math.floor(streakNum / 5) - 1;
-        const audioIndex = Math.max(0, milestoneIndex) % streakAudioFiles.length;
-        
-        audio.src = streakAudioFiles[audioIndex];
-        audio.load(); 
+        audio.onended = null;
+        audio.onerror = null;
+        audio.pause();
+        audio.src = audioUrl;
+        audio.load();
         audio.currentTime = 0;
-        audio.play().catch(() => {});
+
+        isMilestoneAudioPlaying = true;
+
+        audio.onended = () => {
+            isMilestoneAudioPlaying = false;
+        };
+
+        audio.onerror = () => {
+            isMilestoneAudioPlaying = false;
+        };
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+                isMilestoneAudioPlaying = false;
+                if (err.name !== 'AbortError') {
+                    console.warn("Không thể phát âm thanh:", err);
+                }
+            });
+        }
     } catch (err) {
-        console.error("Lỗi audio cột mốc:", err);
+        isMilestoneAudioPlaying = false;
+        console.error("Lỗi phát audio:", err);
     }
+}
+
+// Mở bảng thông báo: luôn phát ngay sound của cột mốc gần nhất đã vượt qua
+function showMilestoneModal(streakNum) {
+    currentModalStreak = streakNum;
+    mascotTapCount = 0;
+    mascotTapStep = 0;
+
+    const modal = document.getElementById('milestoneModal');
+    const titleEl = document.getElementById('milestoneTitle');
+    const descEl = document.getElementById('milestoneDesc');
+    const subDescEl = document.getElementById('milestoneSubDesc');
+    const hintEl = document.getElementById('milestoneHint');
+
+    const isSpecialMilestone = (streakNum > 0 && streakNum % 5 === 0);
+
+    if (isSpecialMilestone) {
+        // Ngày đặc biệt (5, 10, 15...)
+        if (titleEl) titleEl.innerText = "Tuyệt vời quá!";
+        if (descEl) {
+            descEl.innerHTML = `COER đã duy trì được chuỗi <br><span id="milestoneNumber" class="milestone-num">${streakNum}</span>`;
+        }
+        if (subDescEl) {
+            subDescEl.innerHTML = `ngày liên tiếp<br>cùng TRẠM BRB CxC! 🍀`;
+        }
+    } else {
+        // Ngày thường từ 6 trở đi (6-9, 11-14, 16-19...)
+        if (titleEl) titleEl.innerText = "Chúc mừng COER! 🌟";
+        if (descEl) {
+            descEl.innerHTML = `Cảm ơn bạn đã nỗ lực suốt <br><span id="milestoneNumber" class="milestone-num">${streakNum}</span>`;
+        }
+        if (subDescEl) {
+            subDescEl.innerHTML = `ngày qua cùng TRẠM BRB CxC! 💚`;
+        }
+    }
+
+    if (hintEl) {
+        hintEl.innerText = "Nhấp vào poyoiyoi 5 lần để nghe lại những sound của cột mốc qua";
+    }
+
+    // Tự động phát sound của cột mốc gần nhất (VD: chuỗi 16 -> mốc 15 -> streak_3.mp3)
+    const latestMilestoneIndex = Math.floor(streakNum / 5) - 1;
+    if (latestMilestoneIndex >= 0 && streakAudioFiles.length > 0) {
+        const audioIndex = latestMilestoneIndex % streakAudioFiles.length;
+        playSingleMilestoneAudio(streakAudioFiles[audioIndex]);
+    }
+
+    modal.classList.add('show');
+}
+
+// Chỉ tính lượt nhấp sau khi sound hiện tại đã phát xong; đủ 5 lần sẽ mở sound từ mốc 5
+function handleMilestoneMascotTap() {
+    const mascotEl = document.getElementById('milestoneMascotBtn');
+    if (mascotEl) {
+        mascotEl.classList.remove('mascot-pop');
+        void mascotEl.offsetWidth;
+        mascotEl.classList.add('mascot-pop');
+    }
+
+    // Đang phát sound thì chưa tính lượt click
+    if (isMilestoneAudioPlaying) return;
+
+    const passedCount = Math.floor(currentModalStreak / 5);
+    if (passedCount <= 0) return;
+
+    mascotTapCount++;
+    if (mascotTapCount < 5) return;
+
+    // Đủ 5 lần nhấp sau khi hết sound -> đặt lại đếm và phát lần lượt từ mốc 5 (streak_1)
+    mascotTapCount = 0;
+
+    const audioIndex = (mascotTapStep % passedCount) % streakAudioFiles.length;
+    playSingleMilestoneAudio(streakAudioFiles[audioIndex]);
+
+    mascotTapStep++;
 }
 
 function closeMilestoneModal() {
     document.getElementById('milestoneModal').classList.remove('show');
+    mascotTapCount = 0;
+    mascotTapStep = 0;
+    isMilestoneAudioPlaying = false;
     try {
-        document.getElementById('milestoneAudioPlayer').pause();
+        const audio = document.getElementById('milestoneAudioPlayer');
+        audio.onended = null;
+        audio.onerror = null;
+        audio.pause();
+        audio.currentTime = 0;
     } catch (err) {}
 }
 
@@ -840,7 +946,7 @@ function fitTitleLines() {
 }
 
 // ==========================================
-// 🍀 TÍNH NĂNG: NGHE LẠI SOUND MỐC GẦN NHẤT (CLICK 5 LẦN VÀO TIÊU ĐỀ)
+// 🍀 MỞ BẢNG KỶ NIỆM KHI TAP 5 LẦN VÀO TIÊU ĐỀ
 // ==========================================
 let titleClickCount = 0;
 let titleClickTimer = null;
@@ -858,20 +964,14 @@ if (titleBannerEl) {
         if (titleClickCount === 5) {
             titleClickCount = 0; 
             
-            // 1. Đọc số chuỗi thực tế
             const currentStreak = parseInt(localStorage.getItem('cloveris_br_streak') || '0', 10);
             
-            // 2. Chưa đạt mốc 5 ngày nào -> Không phát sound
             if (currentStreak < 5) {
-                showToast("🍀 Bạn cần đạt mốc tối thiểu 5 ngày để nghe lại sound kỷ niệm nhé!");
+                showToast("🍀 Bạn cần đạt mốc tối thiểu 5 ngày để mở khóa sound kỷ niệm nhé!");
                 return;
             }
 
-            // 3. Ép lấy đúng mốc 5 ngày gần nhất đã vượt qua
-            const lastReachedMilestone = Math.floor(currentStreak / 5) * 5;
-
-            // 4. Phát duy nhất sound của mốc đó
-            showMilestoneModal(lastReachedMilestone);
+            showMilestoneModal(currentStreak);
         }
     });
 }

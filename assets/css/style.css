@@ -1122,18 +1122,18 @@ body {
 
 .milestone-box {
     background-image: 
-        linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.5) 100%), 
+        linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.68) 100%), 
         url('../images/background_chuoi.jpg');
     background-size: cover;
     background-position: center bottom;
-    padding: 25px 20px 20px;
+    padding: 16px 18px 16px;
     width: 90%;
     max-width: 340px;
     border-radius: 36px;
     border: 4px solid #fedb70;
     text-align: center;
     position: relative;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
     transform: scale(0.8) translateY(20px);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -1141,8 +1141,8 @@ body {
 .milestone-box p {
     color: #ffffff;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), 0px 0px 10px rgba(0, 0, 0, 0.6);
-    margin: 0 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75), 0px 0px 10px rgba(0, 0, 0, 0.65);
+    margin: -7px;
 }
 
 .milestone-overlay.show .milestone-box {
@@ -1163,6 +1163,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
+    z-index: 5;
 }
 
 @media (hover: hover) {
@@ -1175,26 +1176,38 @@ body {
 }
 
 .milestone-mascot {
-    width: 110px;
-    height: 110px;
+    width: 78px;
+    height: 78px;
     object-fit: contain;
-    margin-bottom: 0px;
+    margin-bottom: 0;
+    cursor: pointer;
     filter: drop-shadow(0 6px 12px rgba(33, 94, 49, 0.25));
     animation: floatMascot 2s ease-in-out infinite alternate;
     will-change: transform;
 }
 
+.milestone-mascot.mascot-pop {
+    animation: mascotTapPop 0.35s ease;
+}
+
 @keyframes floatMascot {
     0% { transform: translateY(0) rotate(-2deg); }
-    100% { transform: translateY(-10px) rotate(4deg); }
+    100% { transform: translateY(-8px) rotate(4deg); }
+}
+
+@keyframes mascotTapPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18) rotate(-6deg); }
+    75% { transform: scale(0.94) rotate(4deg); }
+    100% { transform: scale(1) rotate(0deg); }
 }
 
 .confetti-sparkles {
     position: absolute;
-    top: 20px;
+    top: 16px;
     width: 100%;
     left: 0;
-    font-size: 28px;
+    font-size: 24px;
     letter-spacing: 20px;
     pointer-events: none;
     animation: blinkSparkle 1s infinite alternate;
@@ -1208,36 +1221,58 @@ body {
 
 .milestone-title {
     font-family: 'Baloo 2', sans-serif;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 800;
     color: #ff9d00;
-    -webkit-text-stroke: 1.5px #c75c00;
+    -webkit-text-stroke: 1.3px #c75c00;
     text-shadow: 0 3px 0 #ffe6a0;
-    margin-bottom: 28px;
+    margin: -2px 0 0;
     line-height: 1.1;
 }
 
+/* Tạo khoảng trống ở giữa để lộ rõ khuôn mặt 5 thành viên */
 .milestone-desc {
     font-family: 'Nunito', sans-serif;
     font-size: 16px;
     font-weight: 700;
-    color: #2b5235;
-    line-height: 1.5;
+    color: #ffffff;
+    line-height: 1.25;
+    margin-top: 75px !important;
 }
 
 .milestone-num {
-    font-family: 'Baloo 2';
-    font-size: 68px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 48px;
     font-weight: 800;
     color: #ffb100;
     display: inline-block;
-    margin: -8px 0;
+    line-height: 1.05;
+    margin: 2px 0;
     animation: pulseNum 1s infinite alternate;
+}
+
+.milestone-subdesc {
+    font-family: 'Nunito', sans-serif;
+    font-size: 15.5px;
+    line-height: 1.35;
+    margin: 2px 0 6px !important;
+}
+
+.milestone-hint {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.35;
+    color: #fffbe6 !important;
+    opacity: 0.92;
+    margin: 6px auto 0 !important;
+    max-width: 94%;
 }
 
 @keyframes pulseNum {
     0% { transform: scale(1); }
-    100% { transform: scale(1.15) rotate(2deg); }
+    100% { transform: scale(1.12) rotate(2deg); }
 }
 
 .lang-counter-badge {
