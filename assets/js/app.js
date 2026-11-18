@@ -444,6 +444,12 @@ const STREAK_KEY = 'cloveris_br_streak';
 const LAST_STREAK_DATE_KEY = 'cloveris_br_last_streak_date';
 const FROZEN_STREAK_KEY = 'cloveris_frozen_streak';
 const MISSED_DAYS_KEY = 'cloveris_missed_days';
+const FROZEN_DATE_KEY = 'cloveris_frozen_date';
+
+function getSafeInt(key) {
+    const val = parseInt(localStorage.getItem(key) || '0', 10);
+    return Number.isFinite(val) && val > 0 ? val : 0;
+}
 
 function getTodayString() {
     const d = new Date();
@@ -452,50 +458,94 @@ function getTodayString() {
 
 function getDiffDays(dateStr1, dateStr2) {
     if (!dateStr1 || !dateStr2) return 0;
-    const d1 = new Date(dateStr1); d1.setHours(0, 0, 0, 0);
-    const d2 = new Date(dateStr2); d2.setHours(0, 0, 0, 0);
-    return Math.floor((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    const parts1 = dateStr1.split('-').map(Number);
+    const parts2 = dateStr2.split('-').map(Number);
+    if (parts1.length !== 3 || parts2.length !== 3) return 0;
+    const utc1 = Date.UTC(parts1[0], parts1[1] - 1, parts1[2]);
+    const utc2 = Date.UTC(parts2[0], parts2[1] - 1, parts2[2]);
+    return Math.round((utc2 - utc1) / (1000 * 60 * 60 * 24));
+}
+
+function clearFrozenState() {
+    localStorage.removeItem(FROZEN_STREAK_KEY);
+    localStorage.removeItem(MISSED_DAYS_KEY);
+    localStorage.removeItem(FROZEN_DATE_KEY);
+}
+
+function updateRecoveryBanner() {
+    const bannerEl = document.getElementById('recoveryStatusBanner');
+    if (!bannerEl) return;
+
+    const today = getTodayString();
+    const frozenStreak = getSafeInt(FROZEN_STREAK_KEY);
+    const missedDays = getSafeInt(MISSED_DAYS_KEY);
+    const frozenDate = localStorage.getItem(FROZEN_DATE_KEY);
+    const dailyCount = (localStorage.getItem(DATE_KEY) === today) ? getSafeInt(DAILY_COUNT_KEY) : 0;
+
+    if (frozenStreak > 0 && (!frozenDate || frozenDate === today)) {
+        const targetCaps = (missedDays * 2) + 1;
+        const remaining = Math.max(0, targetCaps - dailyCount);
+
+        const streakSpan = document.getElementById('bannerFrozenStreak');
+        const remainSpan = document.getElementById('bannerRemainingCaps');
+        if (streakSpan) streakSpan.innerText = frozenStreak;
+        if (remainSpan) remainSpan.innerText = remaining;
+
+        bannerEl.style.display = 'block';
+    } else {
+        bannerEl.style.display = 'none';
+    }
 }
 
 function initDailyCounter() {
     const today = getTodayString();
-    const storedDate = localStorage.getItem(DATE_KEY); 
+    const storedDate = localStorage.getItem(DATE_KEY);
 
-    let dailyCount = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0', 10);
-    let totalCount = parseInt(localStorage.getItem(TOTAL_COUNT_KEY) || '0', 10);
-    let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0', 10);
-    let frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
+    let dailyCount = getSafeInt(DAILY_COUNT_KEY);
+    let totalCount = getSafeInt(TOTAL_COUNT_KEY);
+    let streak = getSafeInt(STREAK_KEY);
+    let frozenStreak = getSafeInt(FROZEN_STREAK_KEY);
+    let frozenDate = localStorage.getItem(FROZEN_DATE_KEY);
 
+    // 1. Nếu có chuỗi đóng băng từ ngày hôm trước mà sang ngày mới vẫn chưa bù xong -> Hủy quyền bù
+    if (frozenStreak > 0 && frozenDate && frozenDate !== today) {
+        clearFrozenState();
+        frozenStreak = 0;
+        frozenDate = null;
+    }
+
+    // 2. Xử lý khi bước sang ngày mới so với lần copy gần nhất
     if (storedDate && storedDate !== today) {
         const diff = getDiffDays(storedDate, today);
 
-        if (diff > 1) {
-            if (streak > 0) {
-                frozenStreak = streak;
-                const missedDays = diff - 1;
-                localStorage.setItem(FROZEN_STREAK_KEY, frozenStreak.toString());
-                localStorage.setItem(MISSED_DAYS_KEY, missedDays.toString());
-                streak = 0;
-                localStorage.setItem(STREAK_KEY, '0');
-            } else if (frozenStreak > 0) {
-                localStorage.removeItem(FROZEN_STREAK_KEY);
-                localStorage.removeItem(MISSED_DAYS_KEY);
-                frozenStreak = 0;
-            }
-        } else if (diff === 1) {
-            if (frozenStreak > 0 && streak === 0) {
-                localStorage.removeItem(FROZEN_STREAK_KEY);
-                localStorage.removeItem(MISSED_DAYS_KEY);
-                frozenStreak = 0;
-            }
+        // Chỉ đóng băng nếu đứt chuỗi > 1 ngày và chưa đóng băng trong hôm nay
+        if (diff > 1 && streak > 0 && frozenStreak === 0) {
+            frozenStreak = streak;
+            const missedDays = diff - 1;
+            localStorage.setItem(FROZEN_STREAK_KEY, frozenStreak.toString());
+            localStorage.setItem(MISSED_DAYS_KEY, missedDays.toString());
+            localStorage.setItem(FROZEN_DATE_KEY, today);
+
+            streak = 0;
+            localStorage.setItem(STREAK_KEY, '0');
         }
 
         dailyCount = 0;
+        localStorage.setItem(DAILY_COUNT_KEY, '0');
+    }
+
+    // 3. Tự vá lỗi dây chuyền: đã copy hôm nay và không trong chế độ bù nhưng chuỗi vẫn bằng 0
+    if (frozenStreak === 0 && streak === 0 && storedDate === today && dailyCount > 0) {
+        streak = 1;
+        localStorage.setItem(STREAK_KEY, '1');
+        localStorage.setItem(LAST_STREAK_DATE_KEY, today);
     }
 
     copyCounterEl.innerText = dailyCount;
     document.getElementById('totalCount').innerText = totalCount;
     document.getElementById('streakCount').innerText = streak;
+
+    updateRecoveryBanner();
 
     document.getElementById('rulesModal').classList.add('show');
 }
@@ -505,11 +555,11 @@ function incrementDailyCounter() {
     const storedDate = localStorage.getItem(DATE_KEY);
     const lastStreakDate = localStorage.getItem(LAST_STREAK_DATE_KEY);
 
-    let dailyCount = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0', 10);
-    let totalCount = parseInt(localStorage.getItem(TOTAL_COUNT_KEY) || '0', 10);
-    let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0', 10);
-    let frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
-    let missedDays = parseInt(localStorage.getItem(MISSED_DAYS_KEY) || '0', 10);
+    let dailyCount = getSafeInt(DAILY_COUNT_KEY);
+    let totalCount = getSafeInt(TOTAL_COUNT_KEY);
+    let streak = getSafeInt(STREAK_KEY);
+    let frozenStreak = getSafeInt(FROZEN_STREAK_KEY);
+    let missedDays = getSafeInt(MISSED_DAYS_KEY);
 
     totalCount++;
     localStorage.setItem(TOTAL_COUNT_KEY, totalCount.toString());
@@ -528,6 +578,7 @@ function incrementDailyCounter() {
     let justRecovered = false;
 
     if (frozenStreak > 0) {
+        // Đang trong ngày thử thách bù chuỗi
         const requiredCaps = (missedDays * 2) + 1;
         if (dailyCount >= requiredCaps) {
             streak = frozenStreak + 1;
@@ -535,21 +586,22 @@ function incrementDailyCounter() {
             localStorage.setItem(LAST_STREAK_DATE_KEY, today);
             document.getElementById('streakCount').innerText = streak;
 
-            localStorage.removeItem(FROZEN_STREAK_KEY);
-            localStorage.removeItem(MISSED_DAYS_KEY);
+            clearFrozenState();
             frozenStreak = 0;
             missedDays = 0;
 
             justRecovered = true;
             document.getElementById('successTargetText').innerText = requiredCaps;
             document.getElementById('successStreakText').innerText = streak;
-        } else {
-            localStorage.setItem(LAST_STREAK_DATE_KEY, today);
         }
     } else {
-        if (lastStreakDate !== today) {
-            if (!lastStreakDate || getDiffDays(lastStreakDate, today) === 1) streak++;
-            else streak = 1;
+        // Luồng tính chuỗi bình thường
+        if (lastStreakDate !== today || streak === 0) {
+            if (streak > 0 && lastStreakDate && getDiffDays(lastStreakDate, today) === 1) {
+                streak++;
+            } else {
+                streak = 1;
+            }
 
             localStorage.setItem(STREAK_KEY, streak.toString());
             localStorage.setItem(LAST_STREAK_DATE_KEY, today);
@@ -559,6 +611,8 @@ function incrementDailyCounter() {
         }
     }
 
+    updateRecoveryBanner();
+
     return { streak: streak, isMilestone: justHitMilestone, isRecovery: justRecovered };
 }
 
@@ -567,39 +621,61 @@ function incrementDailyCounter() {
 // ---------------------------------------------
 function closeRulesModal() {
     document.getElementById('rulesModal').classList.remove('show');
-    checkAndShowRecoveryPrompt(); 
+    checkAndShowRecoveryPrompt();
 }
 
 function checkAndShowRecoveryPrompt() {
-    const frozenStreak = parseInt(localStorage.getItem(FROZEN_STREAK_KEY) || '0', 10);
-    const missedDays = parseInt(localStorage.getItem(MISSED_DAYS_KEY) || '0', 10);
-    const lastPromptDate = sessionStorage.getItem('recovery_prompted'); 
+    const today = getTodayString();
+    const frozenStreak = getSafeInt(FROZEN_STREAK_KEY);
+    const missedDays = getSafeInt(MISSED_DAYS_KEY);
+    const frozenDate = localStorage.getItem(FROZEN_DATE_KEY);
+    const dailyCount = (localStorage.getItem(DATE_KEY) === today) ? getSafeInt(DAILY_COUNT_KEY) : 0;
 
-    if (frozenStreak > 0 && !lastPromptDate) {
+    if (frozenStreak > 0 && (!frozenDate || frozenDate === today)) {
         const targetCaps = (missedDays * 2) + 1;
-        document.getElementById('missedDaysText').innerText = missedDays;
-        document.getElementById('frozenStreakText').innerText = frozenStreak;
-        document.getElementById('targetCapsText').innerText = targetCaps;
-        
-        document.getElementById('recoveryPromptModal').classList.add('show');
-        sessionStorage.setItem('recovery_prompted', 'true');
+
+        // Chỉ bật popup 1 lần trong phiên; nếu F5 lại thì chỉ nhắc nhẹ bằng Toast
+        if (!sessionStorage.getItem('recovery_prompted')) {
+            document.getElementById('missedDaysText').innerText = missedDays;
+            document.getElementById('frozenStreakText').innerText = frozenStreak;
+            document.getElementById('targetCapsText').innerText = targetCaps;
+
+            document.getElementById('recoveryPromptModal').classList.add('show');
+            sessionStorage.setItem('recovery_prompted', 'true');
+        } else if (dailyCount < targetCaps) {
+            showToast(`🍀 Bạn đang bù chuỗi: đã xong ${dailyCount}/${targetCaps} caption hôm nay!`);
+        }
     }
 }
 
 function closeRecoveryPrompt() {
     document.getElementById('recoveryPromptModal').classList.remove('show');
-    
+
     setTimeout(() => {
         alert("🍀 LỜI NHẮN TỪ TRẠM:\n\nĐừng vì nôn nóng khôi phục chuỗi mà chỉ bấm Copy cho đủ số lượng rồi bỏ đó nha 🥺\n\nCác COER hãy nhớ dán qua X và đăng bài đàng hoàng cách nhau ít nhất 10 phút để giúp CORTIS tăng Brand Reputation thật sự nhé! Cố lên! 💚");
     }, 400);
 }
 
 function declineRecovery() {
-    localStorage.removeItem(FROZEN_STREAK_KEY);
-    localStorage.removeItem(MISSED_DAYS_KEY);
-    
+    const today = getTodayString();
+    const dailyCount = (localStorage.getItem(DATE_KEY) === today) ? getSafeInt(DAILY_COUNT_KEY) : 0;
+
+    clearFrozenState();
+
+    updateRecoveryBanner();
+
+    // Nếu hôm nay đã copy ít nhất 1 cap rồi thì tính ngay chuỗi mới là 1, không để kẹt ở 0
+    if (dailyCount > 0) {
+        localStorage.setItem(STREAK_KEY, '1');
+        localStorage.setItem(LAST_STREAK_DATE_KEY, today);
+        document.getElementById('streakCount').innerText = '1';
+    } else {
+        localStorage.setItem(STREAK_KEY, '0');
+        localStorage.removeItem(LAST_STREAK_DATE_KEY);
+        document.getElementById('streakCount').innerText = '0';
+    }
+
     document.getElementById('recoveryPromptModal').classList.remove('show');
-    
     showToast("Đã hủy khôi phục. Cùng cày lại từ đầu nhé!");
 }
 

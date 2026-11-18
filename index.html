@@ -81,6 +81,17 @@
                 </div>
             </section>
 
+            <!-- BANNER NHẮC TIẾN ĐỘ BÙ CHUỖI (CHỈ HIỆN KHI ĐANG BÙ) -->
+            <div class="recovery-status-banner" id="recoveryStatusBanner" style="display: none;" role="status">
+                <div class="recovery-banner-top">
+                    <span>🔥 Đang khôi phục chuỗi <strong id="bannerFrozenStreak">0</strong> ngày:</span>
+                    <span class="recovery-remaining-pill">Còn <strong id="bannerRemainingCaps">0</strong> caption nữa!</span>
+                </div>
+                <div class="recovery-banner-sub">
+                    ⚠️ Không bù xong trong hôm nay sẽ mất chuỗi và phải làm lại từ đầu nhé!
+                </div>
+            </div>
+
             <div class="section-divider-stitch">
                 <span class="stitch-line"></span>
                 <span class="stitch-badge">🍀 CAPTION STATION 🍀</span>
@@ -260,7 +271,7 @@
             <div class="recovery-formula">
                 Mục tiêu ít nhất hôm nay của bạn:<br>
                 <span class="highlight" id="targetCapsText">0</span> caption<br>
-                <small>(1 cap tối thiểu cho hôm nay + 2 cap bù/ngày lỡ)</small>
+                <small>(Gồm 1 cap cho hôm nay + 2 cap phạt cho mỗi ngày lỡ — hãy copy đủ số trên trong hôm nay nhé!)</small>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 8px;">
