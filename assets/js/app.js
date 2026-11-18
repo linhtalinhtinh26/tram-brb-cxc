@@ -633,16 +633,14 @@ function checkAndShowRecoveryPrompt() {
 
     if (frozenStreak > 0 && (!frozenDate || frozenDate === today)) {
         const targetCaps = (missedDays * 2) + 1;
+        document.getElementById('missedDaysText').innerText = missedDays;
+        document.getElementById('frozenStreakText').innerText = frozenStreak;
+        document.getElementById('targetCapsText').innerText = targetCaps;
 
-        // Chỉ bật popup 1 lần trong phiên; nếu F5 lại thì chỉ nhắc nhẹ bằng Toast
-        if (!sessionStorage.getItem('recovery_prompted')) {
-            document.getElementById('missedDaysText').innerText = missedDays;
-            document.getElementById('frozenStreakText').innerText = frozenStreak;
-            document.getElementById('targetCapsText').innerText = targetCaps;
+        document.getElementById('recoveryPromptModal').classList.add('show');
 
-            document.getElementById('recoveryPromptModal').classList.add('show');
-            sessionStorage.setItem('recovery_prompted', 'true');
-        } else if (dailyCount < targetCaps) {
+        // Nếu người dùng F5 giữa chừng khi đã bù được một phần, nhắc rõ tiến độ hiện tại
+        if (dailyCount > 0 && dailyCount < targetCaps) {
             showToast(`🍀 Bạn đang bù chuỗi: đã xong ${dailyCount}/${targetCaps} caption hôm nay!`);
         }
     }
