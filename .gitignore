@@ -23,3 +23,7 @@ admin.html
 
 # 6. Kho caption đã upload lên Firebase
 /upload_captions.html
+
+# 7. Âm thanh gốc & script xử lý trên máy
+assets/audio_goc/
+xu_ly_am_thanh.py

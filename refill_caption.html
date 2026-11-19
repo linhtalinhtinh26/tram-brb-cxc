@@ -278,7 +278,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyCQffOi-hPZ_1IyRJK6I95CV3b8VP5oE8c",
+            apiKey: "AIzaSyAFNl2F4zJ2K5ASRgipF20PF8Nf-A41I-U",
             authDomain: "tram-brb-cxc-v2.firebaseapp.com",
             projectId: "tram-brb-cxc-v2",
             storageBucket: "tram-brb-cxc-v2.firebasestorage.app",
@@ -322,7 +322,7 @@
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
             } catch (err) {
-                errEl.innerText = "❌ Sai email hoặc mật khẩu rồi!";
+                errEl.innerText = `❌ Lỗi (${err.code}): ${err.message}`;
                 errEl.style.display = 'block';
             } finally {
                 btn.disabled = false;
