@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Kho Caption - TRẠM BRB CxC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: #e2f4e5;
+            color: #225e34;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 14px;
+        }
+        .box {
+            width: 100%;
+            max-width: 520px;
+            background: #fffefa;
+            border: 3px solid #90ba99;
+            border-radius: 28px;
+            padding: 24px 20px;
+            box-shadow: 0 10px 28px rgba(34, 94, 52, 0.12);
+        }
+        h1 {
+            font-family: 'Baloo 2', sans-serif;
+            font-size: 24px;
+            text-align: center;
+            color: #1a6d30;
+            margin-bottom: 6px;
+        }
+        .sub {
+            text-align: center;
+            font-size: 13.5px;
+            color: #5e7565;
+            margin-bottom: 18px;
+        }
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e8f5e9;
+            border-radius: 12px;
+            padding: 7px 12px;
+            margin-bottom: 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #1b5e20;
+        }
+        .btn-logout {
+            background: transparent;
+            border: 1px solid #81c784;
+            color: #1b5e20;
+            border-radius: 8px;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .stock-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            background: #f2fbf4;
+            border: 1.5px dashed #81c784;
+            border-radius: 16px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+        .btn-mini {
+            background: #ffffff;
+            border: 1.5px solid #388e3c;
+            color: #225e34;
+            border-radius: 12px;
+            padding: 6px 11px;
+            font-weight: 800;
+            font-size: 12.5px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .btn-mini:active { transform: scale(0.96); }
+        label {
+            display: block;
+            font-weight: 800;
+            font-size: 14px;
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+        input[type="email"], input[type="password"], select, textarea {
+            width: 100%;
+            font-family: 'Nunito', sans-serif;
+            font-size: 14.5px;
+            font-weight: 600;
+            padding: 11px 14px;
+            border-radius: 14px;
+            border: 2px solid #b5dac0;
+            background: #ffffff;
+            color: #2b3a2f;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #388e3c;
+        }
+        textarea {
+            min-height: 190px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .hint {
+            font-size: 12.5px;
+            color: #5e7565;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+        .preview-pill {
+            margin-top: 10px;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #1a6d30;
+            background: #e8f5e9;
+            padding: 6px 12px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .btn-submit {
+            width: 100%;
+            margin-top: 16px;
+            padding: 13px;
+            border: none;
+            border-radius: 20px;
+            background: #2b7a42;
+            color: #ffffff;
+            font-family: 'Baloo 2', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #1c522c;
+            transition: transform 0.15s;
+        }
+        .btn-submit:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #1c522c;
+        }
+        .btn-submit:disabled, .btn-clean:disabled {
+            background: #9eb8a5;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .cleanup-section {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 2px dashed #c8e6c9;
+        }
+        .cleanup-title {
+            font-family: 'Baloo 2', sans-serif;
+            font-size: 17px;
+            color: #b71c1c;
+            margin-bottom: 4px;
+        }
+        .cleanup-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .cleanup-row select {
+            flex: 1;
+        }
+        .btn-clean {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 14px;
+            background: #d32f2f;
+            color: #ffffff;
+            font-family: 'Baloo 2', sans-serif;
+            font-size: 15.5px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #8e0000;
+            flex-shrink: 0;
+        }
+        .btn-clean:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #8e0000;
+        }
+        .status-msg {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            display: none;
+            line-height: 1.4;
+        }
+        .status-ok { background: #e8f5e9; color: #1b5e20; border: 1.5px solid #81c784; }
+        .status-err { background: #ffebee; color: #b71c1c; border: 1.5px solid #ef9a9a; }
+    </style>
+</head>
+<body>
+    <!-- KHUNG ĐĂNG NHẬP (TỰ ẨN SAU KHI ĐĂNG NHẬP 1 LẦN) -->
+    <div class="box" id="loginBox" style="display: none;">
+        <h1>🔐 ĐĂNG NHẬP QUẢN LÝ</h1>
+        <p class="sub">Chỉ đăng nhập 1 lần, trình duyệt sẽ tự lưu cho các lần sau</p>
+
+        <label for="loginEmail">Email được cấp:</label>
+        <input type="email" id="loginEmail" placeholder="Nhập email..." />
+
+        <label for="loginPass">Mật khẩu:</label>
+        <input type="password" id="loginPass" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter') loginAdmin()" />
+
+        <button type="button" class="btn-submit" id="loginBtn" onclick="loginAdmin()">🍀 ĐĂNG NHẬP</button>
+        <div class="status-msg status-err" id="loginError"></div>
+    </div>
+
+    <!-- KHUNG NẠP & DỌN CAPTION -->
+    <div class="box" id="managerBox" style="display: none;">
+        <h1>🍀 TRẠM QUẢN LÝ CAPTION CxC</h1>
+        <p class="sub">Nạp caption mới & dọn caption đã dùng trên Firebase</p>
+
+        <div class="user-bar">
+            <span>👤 <span id="userEmailBadge">Admin</span></span>
+            <button type="button" class="btn-logout" onclick="logoutAdmin()">Đăng xuất</button>
+        </div>
+
+        <div class="stock-bar">
+            <div id="stockInfo">📦 Bấm để xem tình trạng kho</div>
+            <button type="button" class="btn-mini" onclick="checkRemainingStock()">Kiểm tra kho</button>
+        </div>
+
+        <label for="langSelect">1. Chọn ngôn ngữ cần nạp thêm:</label>
+        <select id="langSelect">
+            <option value="en" selected>🇬🇧 Tiếng Anh (English)</option>
+            <option value="kr">🇰🇷 Tiếng Hàn (한국어)</option>
+        </select>
+
+        <label for="splitMode">2. Cách tách các câu caption:</label>
+        <select id="splitMode" onchange="updatePreviewCount()">
+            <option value="line" selected>Mỗi dòng (1 lần Enter) là 1 caption</option>
+            <option value="blank">Ngăn cách bằng 1 dòng trống (dùng nếu 1 cap có nhiều dòng)</option>
+        </select>
+
+        <label for="captionInput">3. Dán danh sách caption mới vào đây:</label>
+        <textarea id="captionInput" oninput="updatePreviewCount()" placeholder="Dán các câu caption vào đây..."></textarea>
+        <p class="hint">💡 Tự động bỏ qua dòng trống thừa và lọc trùng lặp trong cùng lần nạp.</p>
+
+        <div class="preview-pill" id="previewCount">📝 Sẵn sàng nạp: 0 caption</div>
+
+        <button type="button" class="btn-submit" id="uploadBtn" onclick="uploadCaptions()">🚀 NẠP LÊN FIREBASE</button>
+
+        <!-- KHU VỰC DỌN DẸP CAPTION ĐÃ DÙNG -->
+        <div class="cleanup-section">
+            <div class="cleanup-title">🧹 Dọn dẹp caption đã dùng (isUsed = true)</div>
+            <p class="hint">Chỉ xóa vĩnh viễn các câu đã được người dùng copy xong (tối đa 400 câu/lần bấm để bảo vệ quota).</p>
+            <div class="cleanup-row">
+                <select id="cleanLangSelect">
+                    <option value="all" selected>Tất cả (Anh + Hàn)</option>
+                    <option value="en">🇬🇧 Chỉ Tiếng Anh</option>
+                    <option value="kr">🇰🇷 Chỉ Tiếng Hàn</option>
+                </select>
+                <button type="button" class="btn-clean" id="cleanBtn" onclick="deleteUsedCaptions()">🗑️ Xóa đã dùng</button>
+            </div>
+        </div>
+
+        <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQffOi-hPZ_1IyRJK6I95CV3b8VP5oE8c",
+            authDomain: "tram-brb-cxc-v2.firebaseapp.com",
+            projectId: "tram-brb-cxc-v2",
+            storageBucket: "tram-brb-cxc-v2.firebasestorage.app",
+            messagingSenderId: "1042042570841",
+            appId: "1:1042042570841:web:7f9e3b667fdc1b00678948",
+            measurementId: "G-W4ECJWPVKP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Tự động kiểm tra phiên đăng nhập
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('managerBox').style.display = 'block';
+                document.getElementById('userEmailBadge').innerText = user.email;
+            } else {
+                document.getElementById('loginBox').style.display = 'block';
+                document.getElementById('managerBox').style.display = 'none';
+            }
+        });
+
+        async function loginAdmin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const errEl = document.getElementById('loginError');
+            const btn = document.getElementById('loginBtn');
+
+            if (!email || !pass) {
+                errEl.innerText = "⚠️ Vui lòng nhập đầy đủ Email và Mật khẩu!";
+                errEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "⏳ Đang đăng nhập...";
+            errEl.style.display = 'none';
+
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch (err) {
+                errEl.innerText = "❌ Sai email hoặc mật khẩu rồi!";
+                errEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🍀 ĐĂNG NHẬP";
+            }
+        }
+
+        function logoutAdmin() {
+            auth.signOut();
+        }
+
+        function parseCaptions() {
+            const raw = document.getElementById('captionInput').value;
+            const mode = document.getElementById('splitMode').value;
+            if (!raw.trim()) return [];
+
+            const items = (mode === 'blank')
+                ? raw.split(/\n\s*\n/)
+                : raw.split(/\r?\n/);
+
+            const cleaned = items.map(s => s.trim()).filter(s => s.length > 0);
+            return [...new Set(cleaned)];
+        }
+
+        function updatePreviewCount() {
+            const list = parseCaptions();
+            document.getElementById('previewCount').innerText = `📝 Sẵn sàng nạp: ${list.length} caption`;
+        }
+
+        function showStatus(text, isOk) {
+            const el = document.getElementById('statusMsg');
+            el.innerText = text;
+            el.className = 'status-msg ' + (isOk ? 'status-ok' : 'status-err');
+            el.style.display = 'block';
+        }
+
+        async function checkRemainingStock() {
+            const infoEl = document.getElementById('stockInfo');
+            infoEl.innerText = "⏳ Đang đếm kho...";
+            try {
+                const [enAvail, krAvail, enUsed, krUsed] = await Promise.all([
+                    db.collection('captions').where('lang', '==', 'en').where('isUsed', '==', false).get(),
+                    db.collection('captions').where('lang', '==', 'kr').where('isUsed', '==', false).get(),
+                    db.collection('captions').where('lang', '==', 'en').where('isUsed', '==', true).get(),
+                    db.collection('captions').where('lang', '==', 'kr').where('isUsed', '==', true).get()
+                ]);
+                infoEl.innerHTML =
+                    `🇬🇧 Anh: <strong>${enAvail.size}</strong> còn · ${enUsed.size} đã dùng<br>` +
+                    `🇰🇷 Hàn: <strong>${krAvail.size}</strong> còn · ${krUsed.size} đã dùng`;
+            } catch (err) {
+                infoEl.innerText = `❌ Lỗi: ${err.message}`;
+                console.error(err);
+            }
+        }
+
+        async function uploadCaptions() {
+            const lang = document.getElementById('langSelect').value;
+            const captions = parseCaptions();
+            if (captions.length === 0) {
+                showStatus("⚠️ Bạn chưa dán câu caption nào cả!", false);
+                return;
+            }
+
+            const btn = document.getElementById('uploadBtn');
+            btn.disabled = true;
+            btn.innerText = "⏳ Đang đẩy dữ liệu...";
+
+            try {
+                for (let i = 0; i < captions.length; i += 450) {
+                    const chunk = captions.slice(i, i + 450);
+                    const batch = db.batch();
+                    chunk.forEach(text => {
+                        const docRef = db.collection('captions').doc();
+                        batch.set(docRef, {
+                            lang: lang,
+                            text: text,
+                            isUsed: false
+                        });
+                    });
+                    await batch.commit();
+                }
+
+                const langLabel = lang === 'en' ? 'Tiếng Anh' : 'Tiếng Hàn';
+                showStatus(`✅ Đã nạp thành công ${captions.length} caption ${langLabel}!`, true);
+                document.getElementById('captionInput').value = "";
+                updatePreviewCount();
+                checkRemainingStock();
+            } catch (err) {
+                showStatus(`❌ Lỗi khi nạp: ${err.message}`, false);
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🚀 NẠP LÊN FIREBASE";
+            }
+        }
+
+        async function deleteUsedCaptions() {
+            const cleanLang = document.getElementById('cleanLangSelect').value;
+            const labelMap = { all: 'TẤT CẢ (Anh + Hàn)', en: 'Tiếng Anh', kr: 'Tiếng Hàn' };
+
+            if (!confirm(`Bạn chắc chắn muốn xóa các caption ĐÃ DÙNG của ${labelMap[cleanLang]}?\n(Các caption chưa dùng vẫn được giữ nguyên)`)) {
+                return;
+            }
+
+            const btn = document.getElementById('cleanBtn');
+            btn.disabled = true;
+            btn.innerText = "⏳ Đang xóa...";
+
+            try {
+                let query = db.collection('captions').where('isUsed', '==', true);
+                if (cleanLang !== 'all') {
+                    query = db.collection('captions').where('lang', '==', cleanLang).where('isUsed', '==', true);
+                }
+
+                const snap = await query.limit(400).get();
+                if (snap.empty) {
+                    showStatus(`✨ Kho ${labelMap[cleanLang]} hiện không có caption đã dùng nào cần xóa!`, true);
+                    return;
+                }
+
+                const batch = db.batch();
+                snap.docs.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                const extraHint = snap.size === 400
+                    ? " (Vẫn còn thêm câu đã dùng, bấm xóa tiếp nếu muốn dọn hết)"
+                    : "";
+                showStatus(`🗑️ Đã xóa sạch ${snap.size} caption đã dùng (${labelMap[cleanLang]})!${extraHint}`, true);
+                checkRemainingStock();
+            } catch (err) {
+                showStatus(`❌ Lỗi khi xóa: ${err.message}`, false);
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🗑️ Xóa đã dùng";
+            }
+        }
+    </script>
+</body>
+</html>
